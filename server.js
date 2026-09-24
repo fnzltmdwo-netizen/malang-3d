@@ -21,13 +21,9 @@ const ipHits = new Map(); // ip -> [timestamps]
 function todayStr() { return new Date().toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" }); }
 function rollDay() { const t = todayStr(); if (cfg.today !== t) { cfg.today = t; cfg.todayCount = 0; save(); } }
 
-const STYLES = {
-  pixar: "a high-quality 3D animated movie character (Pixar/Disney-style 3D CGI render), big expressive eyes, soft subsurface-scattering skin, cinematic studio lighting, shallow depth of field",
-  toy: "a cute 3D vinyl toy figure / collectible figurine, glossy plastic material, clean studio product lighting, simple pastel background",
-  clay: "a claymation stop-motion 3D character, handmade clay texture with subtle fingerprints, warm soft lighting",
-  game: "a stylized 3D game character render, clean smooth shading, vibrant colors, dynamic rim light",
-};
-const promptFor = (s) => `Transform this person into ${STYLES[s] || STYLES.pixar}. Keep the same face identity, hairstyle, expression, pose, clothing and background composition so the person is clearly recognizable. Output a polished, finished render.`;
+const PROMPT = `Re-render this exact photo as a high-quality 3D animated movie still (Pixar / Disney-style 3D CGI look).
+IDENTITY MUST BE PRESERVED: this must be clearly recognizable as the SAME PERSON. Keep the same face shape, facial proportions, eyes, eyebrows, nose, mouth, skin tone, age, hairstyle and hair color, glasses, facial hair, and expression. Keep the same pose, framing, clothing and background composition.
+Only change the rendering style: smooth stylized 3D skin with subtle subsurface scattering, slightly larger expressive eyes, soft cinematic studio lighting, shallow depth of field, polished CGI materials. Do not change who the person is.`;
 
 // ---------- 유틸 ----------
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon" };
@@ -50,18 +46,22 @@ function isAdmin(req) {
 const clientIp = (req) => (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket.remoteAddress;
 
 // ---------- OpenAI 변환 ----------
-async function convert(imageBuf, style) {
+const MODELS = ["gpt-image-1.5", "gpt-image-1"]; // 최신 모델 먼저, 없으면 자동으로 다음 모델
+async function convert(imageBuf, model = MODELS[0]) {
   const form = new FormData();
-  form.append("model", "gpt-image-1");
-  form.append("prompt", promptFor(style));
+  form.append("model", model);
+  form.append("prompt", PROMPT);
   form.append("size", "1024x1024");
   form.append("quality", cfg.quality || "medium");
+  form.append("input_fidelity", "high"); // 얼굴·인물 특징 보존
   form.append("image", new Blob([imageBuf], { type: "image/png" }), "photo.png");
   const r = await fetch("https://api.openai.com/v1/images/edits", { method: "POST", headers: { Authorization: `Bearer ${cfg.apiKey}` }, body: form });
   const text = await r.text(); let data = {};
   try { data = JSON.parse(text); } catch {}
   if (!r.ok) {
     const m = data.error?.message || text.slice(0, 200);
+    const next = MODELS[MODELS.indexOf(model) + 1];
+    if (next && (r.status === 404 || /model|not found|does not exist|invalid_request/i.test(m) && /model/i.test(m))) { console.log(`${model} 사용 불가 → ${next}로 재시도`); return convert(imageBuf, next); }
     if (r.status === 401) throw new Error("관리자가 등록한 API 키가 올바르지 않아요. 관리자에게 알려주세요.");
     if (r.status === 403 && /verif/i.test(m)) throw new Error("OpenAI 조직 인증이 필요해요. (관리자: platform.openai.com → Settings → Organization → Verify)");
     if (r.status === 429) throw new Error("지금 요청이 몰렸거나 크레딧이 부족해요. 잠시 후 다시 시도해 주세요.");
@@ -85,7 +85,7 @@ http.createServer(async (req, res) => {
       const hits = (ipHits.get(ip) || []).filter((t) => now - t < 3600e3);
       if (cfg.perIpLimit > 0 && hits.length >= cfg.perIpLimit) return send(res, 429, { error: `한 시간에 ${cfg.perIpLimit}번까지만 변환할 수 있어요. 잠시 후 다시 시도해 주세요.` });
       let buf; try { buf = await readBody(req, MAX_UPLOAD); } catch { return send(res, 413, { error: "사진이 너무 커요 (12MB 이하)" }); }
-      const b64 = await convert(buf, url.searchParams.get("style") || "pixar");
+      const b64 = await convert(buf);
       hits.push(now); ipHits.set(ip, hits);
       cfg.todayCount++; cfg.total++; save();
       return send(res, 200, { image: "data:image/png;base64," + b64 });
