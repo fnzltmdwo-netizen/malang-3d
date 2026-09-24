@@ -18,6 +18,8 @@ if (!cfg.apiKey && process.env.OPENAI_API_KEY) cfg.apiKey = process.env.OPENAI_A
 const save = () => { try { fs.writeFileSync(DATA_FILE, JSON.stringify(cfg, null, 2)); } catch (e) { console.error("설정 저장 실패:", e.message); } };
 
 const ipHits = new Map(); // ip -> [timestamps]
+const RESULTS = path.join(require("os").tmpdir(), "malang-results"); fs.mkdirSync(RESULTS, { recursive: true });
+setInterval(() => { try { for (const f of fs.readdirSync(RESULTS)) { const fp = path.join(RESULTS, f); if (Date.now() - fs.statSync(fp).mtimeMs > 2 * 3600e3) fs.unlinkSync(fp); } } catch {} }, 10 * 60e3); // 2시간 뒤 자동 삭제
 function todayStr() { return new Date().toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" }); }
 function rollDay() { const t = todayStr(); if (cfg.today !== t) { cfg.today = t; cfg.todayCount = 0; save(); } }
 
@@ -89,7 +91,17 @@ http.createServer(async (req, res) => {
       const b64 = await convert(buf);
       hits.push(now); ipHits.set(ip, hits);
       cfg.todayCount++; cfg.total++; save();
-      return send(res, 200, { image: "data:image/png;base64," + b64 });
+      const id = crypto.randomBytes(8).toString("hex");
+      fs.writeFileSync(path.join(RESULTS, id + ".png"), Buffer.from(b64, "base64"));
+      return send(res, 200, { image: "data:image/png;base64," + b64, url: `/img/${id}.png` });
+    }
+    // 결과 이미지 (?dl=1 이면 다운로드로)
+    const im = p.match(/^\/img\/([a-f0-9]{16})\.png$/);
+    if (im) {
+      const fp = path.join(RESULTS, im[1] + ".png");
+      if (!fs.existsSync(fp)) return send(res, 404, "만료된 이미지예요. 다시 변환해 주세요.", "text/plain; charset=utf-8");
+      res.writeHead(200, { "Content-Type": "image/png", "Cache-Control": "private, max-age=7200", ...(url.searchParams.get("dl") ? { "Content-Disposition": 'attachment; filename="3d-character.png"' } : {}) });
+      return fs.createReadStream(fp).pipe(res);
     }
     if (p === "/api/status") { rollDay(); return send(res, 200, { ready: !!cfg.apiKey, left: cfg.dailyLimit > 0 ? Math.max(0, cfg.dailyLimit - cfg.todayCount) : null }); }
 
