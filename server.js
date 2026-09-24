@@ -23,7 +23,8 @@ function rollDay() { const t = todayStr(); if (cfg.today !== t) { cfg.today = t;
 
 const PROMPT = `Re-render this exact photo as a high-quality 3D animated movie still (Pixar / Disney-style 3D CGI look).
 IDENTITY MUST BE PRESERVED: this must be clearly recognizable as the SAME PERSON. Keep the same face shape, facial proportions, eyes, eyebrows, nose, mouth, skin tone, age, hairstyle and hair color, glasses, facial hair, and expression. Keep the same pose, framing, clothing and background composition.
-Only change the rendering style: smooth stylized 3D skin with subtle subsurface scattering, slightly larger expressive eyes, soft cinematic studio lighting, shallow depth of field, polished CGI materials. Do not change who the person is.`;
+IMPORTANT: keep the eyes at their natural, realistic size and spacing exactly as in the photo. Do NOT enlarge the eyes, do NOT exaggerate or cartoonify any facial feature, keep all facial proportions realistic.
+Only change the rendering style: smooth stylized 3D skin with subtle subsurface scattering, soft cinematic studio lighting, shallow depth of field, polished CGI materials. Do not change who the person is.`;
 
 // ---------- 유틸 ----------
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon" };
