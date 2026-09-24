@@ -37,7 +37,6 @@ h1 span{color:var(--coral)}
 /* card */
 .card{background:var(--card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);border:1px solid var(--line);margin-bottom:16px}
 .card h2{font-size:20px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
-.badge{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-size:13px;font-family:"Noto Sans KR";font-weight:700}
 
 /* drop */
 .drop{display:block;position:relative;min-height:230px;border-radius:18px;background:var(--bg2);border:2px dashed #F1C9AE;cursor:pointer;overflow:hidden;transition:.2s;display:grid;place-items:center;text-align:center}
@@ -48,15 +47,6 @@ h1 span{color:var(--coral)}
 .drop small{color:var(--muted);font-size:13px}
 .drop img{width:100%;max-height:380px;object-fit:contain;display:block;background:#fff}
 .drop .change{position:absolute;right:10px;bottom:10px;background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.15)}
-
-/* styles */
-.styles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0 16px}
-@media (max-width:420px){.styles{grid-template-columns:repeat(2,1fr)}}
-.style{border:2px solid var(--line);background:#fff;border-radius:16px;padding:12px 6px 10px;cursor:pointer;font:inherit;color:var(--ink);display:grid;gap:4px;justify-items:center;transition:.15s}
-.style .ic{font-size:26px;line-height:1}
-.style .nm{font-size:13px;font-weight:700}
-.style.on{border-color:var(--coral);background:#FFF1EA;box-shadow:0 6px 0 -2px #FFD3C2;transform:translateY(-2px)}
-.style:focus-visible{outline:3px solid var(--lav)}
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 18px;border-radius:16px;border:none;font:inherit;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;color:var(--ink);background:#F4EEF8;transition:.15s;box-shadow:0 5px 0 -1px #DDD3EA}
@@ -97,14 +87,14 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
   <header class="hero">
     <div class="blobs" aria-hidden="true"><div class="blob">🎬</div><div class="blob">🧸</div><div class="blob">🎮</div></div>
     <h1>말랑 <span>3D</span> 스튜디오</h1>
-    <p class="sub">사진 한 장 넣으면 3D 애니메이션 캐릭터로 뚝딱. 결과는 바로 저장!</p>
+    <p class="sub">내 사진을 3D 애니메이션 캐릭터로. 얼굴은 그대로, 느낌만 바뀌어요!</p>
   </header>
 
   <p id="error" class="err" hidden></p>
 
   <section id="stepUpload" class="card">
 
-    <h2><span class="badge">1</span> 사진 고르기</h2>
+    <h2>📷 사진 고르기</h2>
     <label id="drop" class="drop" for="file">
       <input id="file" type="file" accept="image/*" hidden>
       <div id="dropEmpty" class="empty">
@@ -116,15 +106,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
       <span id="changeTag" class="change" hidden>사진 바꾸기</span>
     </label>
 
-    <h2 style="margin-top:18px"><span class="badge">2</span> 스타일 고르기</h2>
-    <div class="styles" id="styles" role="radiogroup">
-      <button class="style on" data-style="pixar" role="radio" aria-checked="true"><span class="ic">🎬</span><span class="nm">애니 영화</span></button>
-      <button class="style" data-style="toy" role="radio" aria-checked="false"><span class="ic">🧸</span><span class="nm">피규어</span></button>
-      <button class="style" data-style="clay" role="radio" aria-checked="false"><span class="ic">🧶</span><span class="nm">클레이</span></button>
-      <button class="style" data-style="game" role="radio" aria-checked="false"><span class="ic">🎮</span><span class="nm">게임</span></button>
-    </div>
-
-    <button id="go" class="btn primary big" disabled>✨ 3D 캐릭터로 변신!</button>
+    <button id="go" class="btn primary big" disabled>✨ 3D 애니메이션으로 변신!</button>
     <p class="note"><span id="left"></span><br>사진은 변환에만 쓰이고 저장되지 않아요.</p>
   </section>
 
@@ -149,21 +131,13 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
     <button id="again" class="btn ghost">다른 사진으로 시작</button>
   </section>
 
-  <footer>결과 이미지는 AI(gpt-image-1)로 생성됩니다</footer>
+  <footer>결과 이미지는 OpenAI 이미지 AI로 생성됩니다</footer>
 </main>
 
 <script>
 const $ = (s) => document.querySelector(s);
-const STYLES = {
-  pixar: "a high-quality 3D animated movie character (Pixar/Disney-style 3D CGI render), big expressive eyes, soft subsurface-scattering skin, cinematic studio lighting, shallow depth of field",
-  toy: "a cute 3D vinyl toy figure / collectible figurine, glossy plastic material, clean studio product lighting, simple pastel background",
-  clay: "a claymation stop-motion 3D character, handmade clay texture with subtle fingerprints, warm soft lighting",
-  game: "a stylized 3D game character render, clean smooth shading, vibrant colors, dynamic rim light",
-};
-const promptFor = (s) => `Transform this person into ${STYLES[s]}. Keep the same face identity, hairstyle, expression, pose, clothing and background composition so the person is clearly recognizable. Output a polished, finished render.`;
 
-let file = null, style = "pixar", resultBlob = null, resultUrl = null;
-
+let file = null, resultBlob = null, resultUrl = null;
 
 /* ---- helpers ---- */
 function toast(m){ const t = document.createElement("div"); t.className = "toast"; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
@@ -186,11 +160,6 @@ fileInput.addEventListener("change", () => pick(fileInput.files[0]));
 drop.addEventListener("drop", ev => pick(ev.dataTransfer.files[0]));
 document.addEventListener("paste", ev => { const f = [...(ev.clipboardData?.files || [])][0]; if (f) pick(f); });
 
-$("#styles").addEventListener("click", ev => {
-  const b = ev.target.closest(".style"); if (!b) return;
-  document.querySelectorAll(".style").forEach(x => { const on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-checked", on); });
-  style = b.dataset.style;
-});
 
 /* ---- 이미지 전처리: 긴 변 1024로 줄이고 PNG로 (HEIC 등 대응 + 업로드 크기 절감) ---- */
 async function toPng(f){
@@ -212,7 +181,7 @@ async function convert(){
   const t2 = setInterval(() => { pct = Math.min(92, pct + (pct < 60 ? 3 : 1)); $("#barFill").style.width = pct + "%"; }, 800);
   try {
     const png = await toPng(file);
-    const r = await fetch("/api/convert?style=" + style, { method: "POST", headers: { "Content-Type": "image/png" }, body: png });
+    const r = await fetch("/api/convert", { method: "POST", headers: { "Content-Type": "image/png" }, body: png });
     const text = await r.text(); let data = {};
     try { data = JSON.parse(text); } catch {}
     if (!r.ok) throw new Error(data.error || "서버 오류 (" + r.status + ")");
