@@ -1,0 +1,3 @@
+{ "name": "malang-3d-studio", "version": "3.0.0", "private": true,
+  "description": "인물 사진을 3D 애니메이션 캐릭터로 변환 (관리자가 키 등록, 사용자는 사진만)",
+  "main": "server.js", "scripts": { "start": "node server.js" }, "engines": { "node": ">=18" } }
