@@ -80,6 +80,13 @@ h1 span{color:var(--coral)}
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:fade 2.4s forwards;z-index:9}
 @keyframes fade{0%,75%{opacity:1}100%{opacity:0}}
 footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
+
+/* save sheet */
+.sheet{position:fixed;inset:0;background:rgba(43,35,64,.86);display:grid;place-items:center;padding:20px;z-index:20}
+.sheet-box{background:var(--card);border-radius:20px;padding:18px;max-width:420px;width:100%;text-align:center}
+.sheet-box img{width:100%;border-radius:14px;display:block}
+.sheet-box p{margin:12px 0 0;font-size:14px;line-height:1.6}
+.sheet-box .row{margin-top:12px}
 </style>
 </head>
 <body>
@@ -132,6 +139,17 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
   </section>
 
   <footer>결과 이미지는 OpenAI 이미지 AI로 생성됩니다</footer>
+
+  <div id="sheet" class="sheet" hidden>
+    <div class="sheet-box">
+      <img id="sheetImg" alt="3D 캐릭터">
+      <p><b>이미지를 길게 누르거나(폰) 우클릭해서(PC)</b><br>"이미지 저장"을 선택하면 저장돼요.<br>저장한 이미지를 카톡에 올려 공유하세요.</p>
+      <div class="row">
+        <a id="sheetDownload" class="btn primary" download="3d-character.png">⬇️ 바로 저장</a>
+        <button id="sheetClose" class="btn">닫기</button>
+      </div>
+    </div>
+  </div>
 </main>
 
 <script>
@@ -207,11 +225,16 @@ $("#go").addEventListener("click", convert);
 $("#retry").addEventListener("click", convert);
 
 /* ---- share / reset ---- */
+function openSheet(){ $("#sheetImg").src = resultUrl; $("#sheetDownload").href = resultUrl; $("#sheet").hidden = false; }
+$("#sheetClose").addEventListener("click", () => $("#sheet").hidden = true);
+$("#sheet").addEventListener("click", ev => { if (ev.target === $("#sheet")) $("#sheet").hidden = true; });
 $("#shareBtn").addEventListener("click", async () => {
+  if (!resultBlob) return;
   const f = new File([resultBlob], "3d-character.png", { type: "image/png" });
   if (navigator.canShare && navigator.canShare({ files: [f] })) {
-    try { await navigator.share({ files: [f], title: "내 3D 캐릭터" }); } catch {}
-  } else { $("#downloadBtn").click(); toast("이 브라우저는 공유가 안 돼서 저장했어요. 저장된 이미지를 카톡에 올려 주세요"); }
+    try { await navigator.share({ files: [f], title: "내 3D 캐릭터" }); return; } catch (e) { if (e.name === "AbortError") return; }
+  }
+  openSheet();
 });
 $("#again").addEventListener("click", () => {
   file = null; preview.hidden = true; dropEmpty.hidden = false; $("#changeTag").hidden = true; $("#go").disabled = true; fileInput.value = "";
