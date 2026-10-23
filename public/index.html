@@ -40,7 +40,7 @@ h1 span{color:var(--coral)}
 .card h2{font-size:20px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
 
 /* drop */
-.drop{display:block;position:relative;min-height:230px;border-radius:18px;background:var(--bg2);border:2px dashed #F1C9AE;cursor:pointer;overflow:hidden;transition:.2s;display:grid;place-items:center;text-align:center}
+.drop{margin-bottom:16px;display:block;position:relative;min-height:230px;border-radius:18px;background:var(--bg2);border:2px dashed #F1C9AE;cursor:pointer;overflow:hidden;transition:.2s;display:grid;place-items:center;text-align:center}
 .drop:hover,.drop.over{border-color:var(--coral);background:#FFE0CC}
 .drop .empty{padding:20px}
 .drop .icon{font-size:46px;line-height:1;margin-bottom:8px;filter:drop-shadow(0 6px 0 #F3C9AE)}
@@ -48,6 +48,26 @@ h1 span{color:var(--coral)}
 .drop small{color:var(--muted);font-size:13px}
 .drop img{width:100%;max-height:380px;object-fit:contain;display:block;background:#fff}
 .drop .change{position:absolute;right:10px;bottom:10px;background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+
+/* mode tabs */
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--bg2);padding:5px;border-radius:16px;margin-bottom:16px}
+.tab{border:none;background:transparent;font:inherit;font-size:15px;font-weight:700;color:var(--muted);padding:11px 8px;border-radius:12px;cursor:pointer;transition:.15s}
+.tab.on{background:#fff;color:var(--ink);box-shadow:0 4px 0 -1px #F1D3BE}
+.tab:focus-visible{outline:3px solid var(--lav)}
+
+/* hair picker */
+.hairbox{margin-top:16px}
+.hairbox h3{font-size:16px;margin:0 0 10px;font-family:"Jua","Noto Sans KR",sans-serif;font-weight:400;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.roll{border:none;background:var(--ink);color:#fff;font:inherit;font-size:13px;font-weight:700;padding:8px 12px;border-radius:999px;cursor:pointer}
+.roll:active{transform:translateY(1px)}
+.hairs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+@media (max-width:440px){.hairs{grid-template-columns:repeat(3,1fr)}}
+.hair{border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 4px;font:inherit;font-size:13.5px;font-weight:700;color:var(--ink);cursor:pointer;transition:.12s}
+.hair.on{border-color:var(--coral);background:#FFF1EA;box-shadow:0 4px 0 -1px #FFD3C2}
+.hair.flash{border-color:var(--sun);background:#FFF7DD}
+.hair:focus-visible{outline:3px solid var(--lav)}
+.picked{font-size:13px;color:var(--muted);margin:10px 0 0;text-align:center}
+.picked b{color:var(--coral-d)}
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 18px;border-radius:16px;border:none;font:inherit;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;color:var(--ink);background:#F4EEF8;transition:.15s;box-shadow:0 5px 0 -1px #DDD3EA}
@@ -99,13 +119,17 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
   <header class="hero">
     <div class="blobs" aria-hidden="true"><div class="blob">🎬</div><div class="blob">🧸</div><div class="blob">🎮</div></div>
     <h1>말랑 <span>3D</span> 스튜디오</h1>
-    <p class="sub">내 사진을 3D 애니메이션 캐릭터로. 얼굴은 그대로, 느낌만 바뀌어요!</p>
+    <p class="sub">사진 한 장으로 3D 캐릭터 변신, 헤어스타일 미리보기까지. 얼굴은 그대로!</p>
   </header>
 
   <p id="error" class="err" hidden></p>
   <div id="inapp" class="inapp" hidden>📱 카톡 안에서 열렸어요. 여기서는 이미지 저장이 안 될 수 있어요.<br><a id="inappOpen" href="#">크롬/사파리로 열기</a></div>
 
   <section id="stepUpload" class="card">
+    <div class="tabs" role="tablist">
+      <button class="tab on" data-mode="anim" role="tab" aria-selected="true">🎬 3D 애니메이션</button>
+      <button class="tab" data-mode="hair" role="tab" aria-selected="false">💇 헤어 변경</button>
+    </div>
 
     <h2>📷 사진 고르기</h2>
     <label id="drop" class="drop" for="file">
@@ -118,6 +142,23 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
       <img id="preview" alt="" hidden>
       <span id="changeTag" class="change" hidden>사진 바꾸기</span>
     </label>
+
+    <div id="hairBox" class="hairbox" hidden>
+      <h3>💇 원하는 머리 고르기 <button id="rollBtn" class="roll" type="button">🎲 랜덤 룰렛</button></h3>
+      <div class="hairs" id="hairs">
+        <button class="hair" data-k="dandy">댄디컷</button>
+        <button class="hair" data-k="twoblock">투블럭</button>
+        <button class="hair" data-k="gareuma">가르마펌</button>
+        <button class="hair" data-k="ash">애즈펌</button>
+        <button class="hair" data-k="leaf">리프컷</button>
+        <button class="hair" data-k="shadow">쉐도우펌</button>
+        <button class="hair" data-k="slick">슬릭백</button>
+        <button class="hair" data-k="crop">크롭컷</button>
+        <button class="hair" data-k="hippie">히피펌</button>
+        <button class="hair" data-k="buzz">반삭</button>
+      </div>
+      <p class="picked" id="picked">아직 안 골랐어요. 고르기 어려우면 룰렛을 돌려보세요!</p>
+    </div>
 
     <button id="go" class="btn primary big" disabled>✨ 3D 애니메이션으로 변신!</button>
     <p class="note"><span id="left"></span><br>사진은 변환에만 쓰이고 저장되지 않아요.</p>
@@ -134,14 +175,15 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
     <h2>🎉 완성!</h2>
     <div class="compare">
       <figure><img id="beforeImg" alt="원본 사진"><figcaption>원본</figcaption></figure>
-      <figure class="after"><img id="afterImg" alt="3D 캐릭터"><figcaption>3D 캐릭터</figcaption></figure>
+      <figure class="after"><img id="afterImg" alt="3D 캐릭터"><figcaption id="afterCap">3D 캐릭터</figcaption></figure>
     </div>
-    <p class="note">저장이 안 되면 위 3D 이미지를 <b>길게 눌러</b> "이미지 저장"을 선택하세요.</p>
+    <p class="note">저장이 안 되면 위 결과 이미지를 <b>길게 눌러</b> "이미지 저장"을 선택하세요.</p>
     <div class="row">
       <a id="downloadBtn" class="btn primary" download="3d-character.png">⬇️ 이미지 저장</a>
       <button id="shareBtn" class="btn mint">📤 공유하기</button>
     </div>
     <button id="retry" class="btn" style="width:100%;margin-top:10px">🔁 같은 사진으로 다시</button>
+    <button id="otherHair" class="btn mint" style="width:100%;margin-top:10px" hidden>🎲 다른 머리도 해보기</button>
     <button id="again" class="btn ghost">다른 사진으로 시작</button>
   </section>
 
@@ -163,6 +205,55 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
 const $ = (s) => document.querySelector(s);
 
 let file = null, resultBlob = null, resultUrl = null;
+let mode = "anim", hairKey = null;
+const HAIR_NAMES = {}; document.querySelectorAll(".hair").forEach(b => HAIR_NAMES[b.dataset.k] = b.textContent);
+
+/* ---- 모드 탭 ---- */
+function setMode(m){
+  mode = m;
+  document.querySelectorAll(".tab").forEach(t => { const on = t.dataset.mode === m; t.classList.toggle("on", on); t.setAttribute("aria-selected", on); });
+  $("#hairBox").hidden = m !== "hair";
+  updateGo();
+  clearError();
+}
+function updateGo(){
+  if (mode === "hair") {
+    $("#go").textContent = hairKey ? `💇 ${HAIR_NAMES[hairKey]}(으)로 바꾸기!` : "💇 헤어스타일 바꾸기!";
+    $("#go").disabled = !file || !hairKey;
+  } else {
+    $("#go").textContent = "✨ 3D 애니메이션으로 변신!";
+    $("#go").disabled = !file;
+  }
+}
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => setMode(t.dataset.mode)));
+
+/* ---- 헤어 선택 / 룰렛 ---- */
+function pickHair(k){
+  hairKey = k;
+  document.querySelectorAll(".hair").forEach(b => b.classList.toggle("on", b.dataset.k === k));
+  $("#picked").innerHTML = `선택: <b>${HAIR_NAMES[k]}</b>`;
+  updateGo();
+}
+$("#hairs").addEventListener("click", ev => { const b = ev.target.closest(".hair"); if (b) pickHair(b.dataset.k); });
+let rolling = false;
+function roulette(exclude){
+  if (rolling) return Promise.resolve(hairKey);
+  rolling = true;
+  const btns = [...document.querySelectorAll(".hair")];
+  const pool = btns.filter(b => b.dataset.k !== exclude);
+  const target = pool[Math.floor(Math.random() * pool.length)];
+  const steps = btns.length + btns.indexOf(target);
+  let i = 0, delay = 40;
+  return new Promise(done => {
+    (function tick(){
+      btns.forEach(b => b.classList.remove("flash", "on"));
+      const b = btns[i % btns.length]; b.classList.add("flash");
+      if (i >= steps && b === target) { b.classList.remove("flash"); rolling = false; pickHair(b.dataset.k); return done(b.dataset.k); }
+      i++; delay = Math.min(delay * 1.08, 150); setTimeout(tick, delay);
+    })();
+  });
+}
+$("#rollBtn").addEventListener("click", () => roulette());
 
 /* ---- helpers ---- */
 function toast(m){ const t = document.createElement("div"); t.className = "toast"; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
@@ -177,7 +268,7 @@ function pick(f){
   if (!f.type.startsWith("image/")) return error("이미지 파일만 올릴 수 있어요");
   file = f; clearError();
   preview.src = URL.createObjectURL(f); preview.hidden = false; dropEmpty.hidden = true; $("#changeTag").hidden = false;
-  $("#go").disabled = false;
+  updateGo();
 }
 fileInput.addEventListener("change", () => pick(fileInput.files[0]));
 ["dragenter","dragover"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add("over"); }));
@@ -197,16 +288,19 @@ async function toPng(f){
 }
 
 /* ---- convert ---- */
+const HAIR_MSGS = ["가위 소독하는 중…", "머리 감기는 중…", "스타일 잡는 중…", "드라이하는 중…", "마무리 손질 중…"];
 const msgs = ["반죽 치대는 중…", "얼굴 특징 잡는 중…", "조명이랑 질감 입히는 중…", "마지막 렌더링 중…"];
 async function convert(){
   if (!file) return;
   clearError(); show("stepLoading");
   let i = 0, pct = 0;
-  const t1 = setInterval(() => $("#lmsg").textContent = msgs[++i % msgs.length], 7000);
+  const M = mode === "hair" ? HAIR_MSGS : msgs; $("#lmsg").textContent = M[0];
+  const t1 = setInterval(() => $("#lmsg").textContent = M[++i % M.length], 7000);
   const t2 = setInterval(() => { pct = Math.min(92, pct + (pct < 60 ? 3 : 1)); $("#barFill").style.width = pct + "%"; }, 800);
   try {
     const png = await toPng(file);
-    const r = await fetch("/api/convert", { method: "POST", headers: { "Content-Type": "image/png" }, body: png });
+    const q = mode === "hair" ? `?mode=hair&style=${hairKey}` : "";
+    const r = await fetch("/api/convert" + q, { method: "POST", headers: { "Content-Type": "image/png" }, body: png });
     const text = await r.text(); let data = {};
     try { data = JSON.parse(text); } catch {}
     if (!r.ok) throw new Error(data.error || "서버 오류 (" + r.status + ")");
@@ -214,6 +308,11 @@ async function convert(){
     resultUrl = data.url ? data.url + "?dl=1" : data.image;
     $("#barFill").style.width = "100%";
     $("#beforeImg").src = preview.src; $("#afterImg").src = data.image; $("#downloadBtn").href = resultUrl;
+    const isHair = mode === "hair";
+    $("#afterCap").textContent = isHair ? HAIR_NAMES[hairKey] : "3D 캐릭터";
+    const fname = isHair ? `hair-${HAIR_NAMES[hairKey]}.png` : "3d-character.png";
+    $("#downloadBtn").download = fname; $("#sheetDownload").download = fname;
+    $("#otherHair").hidden = !isHair;
     setTimeout(() => show("stepResult"), 400);
     loadStatus();
   } catch (e) { error(e.message); }
@@ -235,6 +334,7 @@ loadStatus();
 })();
 $("#go").addEventListener("click", convert);
 $("#retry").addEventListener("click", convert);
+$("#otherHair").addEventListener("click", async () => { show("stepUpload"); window.scrollTo({top:0,behavior:"smooth"}); await roulette(hairKey); setTimeout(convert, 500); });
 
 /* ---- share / reset ---- */
 function openSheet(){ $("#sheetImg").src = $("#afterImg").src; $("#sheetDownload").href = resultUrl; $("#sheet").hidden = false; }
@@ -244,12 +344,12 @@ $("#shareBtn").addEventListener("click", async () => {
   if (!resultBlob) return;
   const f = new File([resultBlob], "3d-character.png", { type: "image/png" });
   if (navigator.canShare && navigator.canShare({ files: [f] })) {
-    try { await navigator.share({ files: [f], title: "내 3D 캐릭터" }); return; } catch (e) { if (e.name === "AbortError") return; }
+    try { await navigator.share({ files: [f], title: mode === "hair" ? "내 새 헤어스타일" : "내 3D 캐릭터" }); return; } catch (e) { if (e.name === "AbortError") return; }
   }
   openSheet();
 });
 $("#again").addEventListener("click", () => {
-  file = null; preview.hidden = true; dropEmpty.hidden = false; $("#changeTag").hidden = true; $("#go").disabled = true; fileInput.value = "";
+  file = null; preview.hidden = true; dropEmpty.hidden = false; $("#changeTag").hidden = true; fileInput.value = ""; updateGo();
   show("stepUpload"); window.scrollTo({top:0,behavior:"smooth"});
 });
 </script>
