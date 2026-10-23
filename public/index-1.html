@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>말랑 3D 스튜디오</title>
+<meta name="description" content="인물 사진 한 장을 3D 애니메이션 캐릭터로 바꿔 저장하는 사이트">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#FFF6EC; --bg2:#FFE9D6; --card:#FFFFFF; --ink:#2B2340; --muted:#7A7090; --line:#F0DFCF;
+  --coral:#FF7A59; --coral-d:#E85F3F; --mint:#5FD3B0; --lav:#C9B8FF; --sun:#FFD166;
+  --shadow:0 18px 40px -18px rgba(90,50,20,.35), 0 2px 0 #fff inset;
+  --clay:0 10px 0 -2px #F3D9C4, 0 22px 30px -18px rgba(90,50,20,.4);
+  --r:22px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{font-family:"Noto Sans KR",-apple-system,"Apple SD Gothic Neo",sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;min-height:100vh;
+  background-image:radial-gradient(circle at 12% 8%,#FFE1CC 0,transparent 32%),radial-gradient(circle at 90% 20%,#E6DDFF 0,transparent 30%),radial-gradient(circle at 70% 95%,#D6F5EA 0,transparent 30%)}
+.wrap{max-width:560px;margin:0 auto;padding:28px 16px 60px}
+h1,h2,.display{font-family:"Jua","Noto Sans KR",sans-serif;font-weight:400;letter-spacing:-.01em;text-wrap:balance}
+
+/* hero */
+.hero{text-align:center;margin-bottom:22px}
+.blobs{display:flex;justify-content:center;gap:10px;margin-bottom:6px}
+.blob{width:54px;height:54px;border-radius:40% 60% 55% 45%/50% 45% 55% 50%;display:grid;place-items:center;font-size:26px;box-shadow:var(--clay);animation:bob 4s ease-in-out infinite}
+.blob:nth-child(1){background:var(--coral);animation-delay:0s}
+.blob:nth-child(2){background:var(--sun);animation-delay:.6s;transform:translateY(8px)}
+.blob:nth-child(3){background:var(--mint);animation-delay:1.2s}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(4deg)}}
+h1{font-size:40px;margin:6px 0 4px}
+h1 span{color:var(--coral)}
+.sub{color:var(--muted);margin:0;font-size:15px}
+
+/* card */
+.card{background:var(--card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);border:1px solid var(--line);margin-bottom:16px}
+.card h2{font-size:20px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+
+/* drop */
+.drop{margin-bottom:16px;display:block;position:relative;min-height:230px;border-radius:18px;background:var(--bg2);border:2px dashed #F1C9AE;cursor:pointer;overflow:hidden;transition:.2s;display:grid;place-items:center;text-align:center}
+.drop:hover,.drop.over{border-color:var(--coral);background:#FFE0CC}
+.drop .empty{padding:20px}
+.drop .icon{font-size:46px;line-height:1;margin-bottom:8px;filter:drop-shadow(0 6px 0 #F3C9AE)}
+.drop b{display:block;font-size:17px}
+.drop small{color:var(--muted);font-size:13px}
+.drop img{width:100%;max-height:380px;object-fit:contain;display:block;background:#fff}
+.drop .change{position:absolute;right:10px;bottom:10px;background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+
+/* mode tabs */
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--bg2);padding:5px;border-radius:16px;margin-bottom:16px}
+.tab{border:none;background:transparent;font:inherit;font-size:15px;font-weight:700;color:var(--muted);padding:11px 8px;border-radius:12px;cursor:pointer;transition:.15s}
+.tab.on{background:#fff;color:var(--ink);box-shadow:0 4px 0 -1px #F1D3BE}
+.tab:focus-visible{outline:3px solid var(--lav)}
+
+/* hair roulette slot */
+.hairbox{margin-top:4px;margin-bottom:16px}
+.slot{display:grid;justify-items:center;gap:4px;padding:18px 12px;border-radius:18px;background:var(--ink);color:#fff;box-shadow:0 8px 0 -2px #4A3F66}
+.slot-label{font-size:13px;opacity:.75;font-weight:700}
+.slot-name{font-family:"Jua","Noto Sans KR",sans-serif;font-size:32px;line-height:1.2;min-height:1.2em}
+.slot-name.spin{color:var(--sun)}
+.slot-name.done{color:#fff;animation:pop .35s ease-out}
+@keyframes pop{0%{transform:scale(.8)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+.picked{font-size:12.5px;color:var(--muted);margin:10px 0 0;text-align:center;line-height:1.6}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 18px;border-radius:16px;border:none;font:inherit;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;color:var(--ink);background:#F4EEF8;transition:.15s;box-shadow:0 5px 0 -1px #DDD3EA}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 -1px #DDD3EA}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.primary{background:var(--coral);color:#fff;box-shadow:0 6px 0 -1px var(--coral-d)}
+.btn.primary:active{box-shadow:0 2px 0 -1px var(--coral-d)}
+.btn.mint{background:var(--mint);color:#0F3F30;box-shadow:0 5px 0 -1px #3FB894}
+.btn.big{width:100%;font-size:18px;padding:17px;font-family:"Jua","Noto Sans KR";font-weight:400;letter-spacing:.01em}
+.btn.ghost{background:transparent;box-shadow:none;color:var(--muted);width:100%;margin-top:6px}
+.btn:focus-visible{outline:3px solid var(--lav);outline-offset:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.note{font-size:12.5px;color:var(--muted);text-align:center;margin:12px 0 0;line-height:1.6}
+
+/* loading */
+.loading{text-align:center;padding:38px 20px}
+.kneed{width:84px;height:84px;margin:0 auto 18px;border-radius:45% 55% 50% 50%/55% 45% 55% 45%;background:linear-gradient(135deg,var(--coral),var(--sun));box-shadow:var(--clay);animation:knead 1.6s ease-in-out infinite}
+@keyframes knead{0%,100%{border-radius:45% 55% 50% 50%/55% 45% 55% 45%;transform:scale(1) rotate(0)}50%{border-radius:55% 45% 60% 40%/40% 60% 45% 55%;transform:scale(1.08) rotate(8deg)}}
+.lmsg{font-family:"Jua";font-size:20px;margin:0}
+.bar{height:8px;border-radius:99px;background:var(--bg2);margin:16px auto 8px;max-width:260px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--coral),var(--sun));transition:width .8s linear}
+@media (prefers-reduced-motion:reduce){.blob,.kneed{animation:none}}
+
+/* result */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.compare figure{margin:0}
+.compare img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:16px;background:var(--bg2);display:block}
+.compare figcaption{text-align:center;font-size:13px;color:var(--muted);margin-top:6px;font-weight:700}
+.compare figure.after img{box-shadow:0 0 0 3px var(--coral),0 14px 30px -12px rgba(232,95,63,.5)}
+.err{background:#FFEAEA;border:1.5px solid #FFB3B3;color:#8A1F1F;padding:12px 14px;border-radius:14px;font-size:14px;margin-bottom:14px;line-height:1.6}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:fade 2.4s forwards;z-index:9}
+@keyframes fade{0%,75%{opacity:1}100%{opacity:0}}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
+
+/* in-app banner */
+.inapp{background:#FFF4E5;border:1.5px solid #FFD28A;color:#7A4B00;padding:12px 14px;border-radius:14px;font-size:13.5px;line-height:1.6;margin-bottom:14px}
+.inapp a{display:inline-block;margin-top:8px;padding:9px 14px;border-radius:10px;background:#7A4B00;color:#fff;font-weight:700;text-decoration:none}
+
+/* save sheet */
+.sheet{position:fixed;inset:0;background:rgba(43,35,64,.86);display:grid;place-items:center;padding:20px;z-index:20}
+.sheet-box{background:var(--card);border-radius:20px;padding:18px;max-width:420px;width:100%;text-align:center}
+.sheet-box img{width:100%;border-radius:14px;display:block}
+.sheet-box p{margin:12px 0 0;font-size:14px;line-height:1.6}
+.sheet-box .row{margin-top:12px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="hero">
+    <div class="blobs" aria-hidden="true"><div class="blob">🎬</div><div class="blob">🧸</div><div class="blob">🎮</div></div>
+    <h1>말랑 <span>3D</span> 스튜디오</h1>
+    <p class="sub">사진 한 장으로 3D 캐릭터 변신, 헤어스타일 미리보기까지. 얼굴은 그대로!</p>
+  </header>
+
+  <p id="error" class="err" hidden></p>
+  <div id="inapp" class="inapp" hidden>📱 카톡 안에서 열렸어요. 여기서는 이미지 저장이 안 될 수 있어요.<br><a id="inappOpen" href="#">크롬/사파리로 열기</a></div>
+
+  <section id="stepUpload" class="card">
+    <div class="tabs" role="tablist">
+      <button class="tab on" data-mode="anim" role="tab" aria-selected="true">🎬 3D 애니메이션</button>
+      <button class="tab" data-mode="hair" role="tab" aria-selected="false">💇 헤어 변경</button>
+    </div>
+
+    <h2>📷 사진 고르기</h2>
+    <label id="drop" class="drop" for="file">
+      <input id="file" type="file" accept="image/*" hidden>
+      <div id="dropEmpty" class="empty">
+        <div class="icon">📷</div>
+        <b>탭해서 사진 선택 · 촬영</b>
+        <small>정면, 얼굴이 크게 나온 사진이 제일 잘 나와요</small>
+      </div>
+      <img id="preview" alt="" hidden>
+      <span id="changeTag" class="change" hidden>사진 바꾸기</span>
+    </label>
+
+    <div id="hairBox" class="hairbox" hidden>
+      <div class="slot" aria-live="polite">
+        <span class="slot-label">오늘의 헤어는?</span>
+        <span id="slotName" class="slot-name">🎲 ???</span>
+      </div>
+      <p class="picked">댄디컷 · 투블럭 · 가르마펌 · 애즈펌 · 리프컷 · 쉐도우펌 · 슬릭백 · 크롭컷 · 히피펌 · 반삭 중 하나가 랜덤으로 나와요</p>
+    </div>
+
+    <button id="go" class="btn primary big" disabled>✨ 3D 애니메이션으로 변신!</button>
+    <p class="note"><span id="left"></span><br>사진은 변환에만 쓰이고 저장되지 않아요.</p>
+  </section>
+
+  <section id="stepLoading" class="card loading" hidden>
+    <div class="kneed" aria-hidden="true"></div>
+    <p id="lmsg" class="lmsg">반죽 치대는 중…</p>
+    <div class="bar"><i id="barFill"></i></div>
+    <p class="note">보통 30초~1분 걸려요. 화면을 닫지 마세요.</p>
+  </section>
+
+  <section id="stepResult" class="card" hidden>
+    <h2>🎉 완성!</h2>
+    <div class="compare">
+      <figure><img id="beforeImg" alt="원본 사진"><figcaption>원본</figcaption></figure>
+      <figure class="after"><img id="afterImg" alt="3D 캐릭터"><figcaption id="afterCap">3D 캐릭터</figcaption></figure>
+    </div>
+    <p class="note">저장이 안 되면 위 결과 이미지를 <b>길게 눌러</b> "이미지 저장"을 선택하세요.</p>
+    <div class="row">
+      <a id="downloadBtn" class="btn primary" download="3d-character.png">⬇️ 이미지 저장</a>
+      <button id="shareBtn" class="btn mint">📤 공유하기</button>
+    </div>
+    <button id="retry" class="btn" style="width:100%;margin-top:10px">🔁 같은 사진으로 다시</button>
+    <button id="otherHair" class="btn mint" style="width:100%;margin-top:10px" hidden>🎲 다른 랜덤 머리 해보기</button>
+    <button id="again" class="btn ghost">다른 사진으로 시작</button>
+  </section>
+
+  <footer>결과 이미지는 OpenAI 이미지 AI로 생성됩니다</footer>
+
+  <div id="sheet" class="sheet" hidden>
+    <div class="sheet-box">
+      <img id="sheetImg" alt="3D 캐릭터">
+      <p><b>이미지를 길게 누르거나(폰) 우클릭해서(PC)</b><br>"이미지 저장"을 선택하면 저장돼요.<br>저장한 이미지를 카톡에 올려 공유하세요.</p>
+      <div class="row">
+        <a id="sheetDownload" class="btn primary" download="3d-character.png">⬇️ 바로 저장</a>
+        <button id="sheetClose" class="btn">닫기</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+
+let file = null, resultBlob = null, resultUrl = null;
+let mode = "anim", hairKey = null;
+const HAIR_NAMES = { dandy:"댄디컷", twoblock:"투블럭", gareuma:"가르마펌", ash:"애즈펌", leaf:"리프컷", shadow:"쉐도우펌", slick:"슬릭백", crop:"크롭컷", hippie:"히피펌", buzz:"반삭" };
+const HAIR_KEYS = Object.keys(HAIR_NAMES);
+
+/* ---- 모드 탭 ---- */
+function setMode(m){
+  mode = m;
+  document.querySelectorAll(".tab").forEach(t => { const on = t.dataset.mode === m; t.classList.toggle("on", on); t.setAttribute("aria-selected", on); });
+  $("#hairBox").hidden = m !== "hair";
+  updateGo();
+  clearError();
+}
+function updateGo(){
+  if (mode === "hair") {
+    $("#go").textContent = "🎲 랜덤 헤어로 바꾸기!";
+    $("#go").disabled = !file;
+  } else {
+    $("#go").textContent = "✨ 3D 애니메이션으로 변신!";
+    $("#go").disabled = !file;
+  }
+}
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => setMode(t.dataset.mode)));
+
+/* ---- 헤어 랜덤 룰렛 ---- */
+let rolling = false;
+function roulette(exclude){
+  if (rolling) return Promise.resolve(hairKey);
+  rolling = true;
+  const pool = HAIR_KEYS.filter(k => k !== exclude);
+  const target = pool[Math.floor(Math.random() * pool.length)];
+  const el = $("#slotName"); el.classList.remove("done"); el.classList.add("spin");
+  const steps = 14 + Math.floor(Math.random() * 6);
+  let i = Math.floor(Math.random() * HAIR_KEYS.length), n = 0, delay = 45;
+  return new Promise(done => {
+    (function tick(){
+      if (n >= steps) {
+        el.textContent = HAIR_NAMES[target]; el.classList.remove("spin"); void el.offsetWidth; el.classList.add("done");
+        hairKey = target; rolling = false; return setTimeout(() => done(target), 550);
+      }
+      el.textContent = HAIR_NAMES[HAIR_KEYS[i++ % HAIR_KEYS.length]];
+      n++; delay = Math.min(delay * 1.1, 150); setTimeout(tick, delay);
+    })();
+  });
+}
+
+/* ---- helpers ---- */
+function toast(m){ const t = document.createElement("div"); t.className = "toast"; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
+function show(step){ ["stepUpload","stepLoading","stepResult"].forEach(id => $("#"+id).hidden = id !== step); }
+function error(m){ $("#error").textContent = "⚠️ " + m; $("#error").hidden = false; show("stepUpload"); window.scrollTo({top:0,behavior:"smooth"}); }
+function clearError(){ $("#error").hidden = true; }
+
+/* ---- file pick ---- */
+const drop = $("#drop"), preview = $("#preview"), dropEmpty = $("#dropEmpty"), fileInput = $("#file");
+function pick(f){
+  if (!f) return;
+  if (!f.type.startsWith("image/")) return error("이미지 파일만 올릴 수 있어요");
+  file = f; clearError();
+  preview.src = URL.createObjectURL(f); preview.hidden = false; dropEmpty.hidden = true; $("#changeTag").hidden = false;
+  updateGo();
+}
+fileInput.addEventListener("change", () => pick(fileInput.files[0]));
+["dragenter","dragover"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", ev => pick(ev.dataTransfer.files[0]));
+document.addEventListener("paste", ev => { const f = [...(ev.clipboardData?.files || [])][0]; if (f) pick(f); });
+
+
+/* ---- 이미지 전처리: 긴 변 1024로 줄이고 PNG로 (HEIC 등 대응 + 업로드 크기 절감) ---- */
+async function toPng(f){
+  const bmp = await createImageBitmap(f).catch(() => null);
+  if (!bmp) throw new Error("이 사진 형식은 브라우저가 읽지 못해요. JPG/PNG로 다시 시도해 주세요.");
+  const max = 1024, r = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas"); c.width = Math.round(bmp.width * r); c.height = Math.round(bmp.height * r);
+  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+  return new Promise(res => c.toBlob(res, "image/png"));
+}
+
+/* ---- convert ---- */
+const HAIR_MSGS = ["가위 소독하는 중…", "머리 감기는 중…", "스타일 잡는 중…", "드라이하는 중…", "마무리 손질 중…"];
+const msgs = ["반죽 치대는 중…", "얼굴 특징 잡는 중…", "조명이랑 질감 입히는 중…", "마지막 렌더링 중…"];
+async function convert(){
+  if (!file) return;
+  clearError(); show("stepLoading");
+  let i = 0, pct = 0;
+  const M = mode === "hair" ? HAIR_MSGS : msgs; $("#lmsg").textContent = M[0];
+  const t1 = setInterval(() => $("#lmsg").textContent = M[++i % M.length], 7000);
+  const t2 = setInterval(() => { pct = Math.min(92, pct + (pct < 60 ? 3 : 1)); $("#barFill").style.width = pct + "%"; }, 800);
+  try {
+    const png = await toPng(file);
+    const q = mode === "hair" ? `?mode=hair&style=${hairKey}` : "";
+    const r = await fetch("/api/convert" + q, { method: "POST", headers: { "Content-Type": "image/png" }, body: png });
+    const text = await r.text(); let data = {};
+    try { data = JSON.parse(text); } catch {}
+    if (!r.ok) throw new Error(data.error || "서버 오류 (" + r.status + ")");
+    const res = await fetch(data.image); resultBlob = await res.blob();
+    resultUrl = data.url ? data.url + "?dl=1" : data.image;
+    $("#barFill").style.width = "100%";
+    $("#beforeImg").src = preview.src; $("#afterImg").src = data.image; $("#downloadBtn").href = resultUrl;
+    const isHair = mode === "hair";
+    $("#afterCap").textContent = isHair ? HAIR_NAMES[hairKey] : "3D 캐릭터";
+    const fname = isHair ? `hair-${HAIR_NAMES[hairKey]}.png` : "3d-character.png";
+    $("#downloadBtn").download = fname; $("#sheetDownload").download = fname;
+    $("#otherHair").hidden = !isHair;
+    setTimeout(() => show("stepResult"), 400);
+    loadStatus();
+  } catch (e) { error(e.message); }
+  finally { clearInterval(t1); clearInterval(t2); pct = 0; $("#barFill").style.width = "0"; }
+}
+/* ---- 서버 상태 (남은 횟수) ---- */
+async function loadStatus(){
+  try { const s = await (await fetch("/api/status")).json();
+    if (!s.ready) { error("아직 준비 중이에요. 관리자가 API 키를 등록하면 바로 쓸 수 있어요."); $("#go").disabled = true; }
+    if (s.left !== null) $("#left").textContent = "오늘 남은 변환 " + s.left + "회";
+  } catch {}
+}
+loadStatus();
+/* ---- 카톡 등 인앱 브라우저 감지 → 외부 브라우저로 열기 ---- */
+(function(){
+  const ua = navigator.userAgent;
+  if (/KAKAOTALK/i.test(ua)) { $("#inapp").hidden = false; $("#inappOpen").href = "kakaotalk://web/openExternal?url=" + encodeURIComponent(location.href); }
+  else if (/Instagram|FBAN|FBAV|Line\//i.test(ua)) { $("#inapp").hidden = false; $("#inappOpen").href = location.href; $("#inappOpen").target = "_blank"; }
+})();
+$("#go").addEventListener("click", async () => {
+  if (mode === "hair") { $("#go").disabled = true; await roulette(); }
+  convert();
+});
+$("#retry").addEventListener("click", convert);
+$("#otherHair").addEventListener("click", async () => { show("stepUpload"); window.scrollTo({top:0,behavior:"smooth"}); $("#go").disabled = true; await roulette(hairKey); convert(); });
+
+/* ---- share / reset ---- */
+function openSheet(){ $("#sheetImg").src = $("#afterImg").src; $("#sheetDownload").href = resultUrl; $("#sheet").hidden = false; }
+$("#sheetClose").addEventListener("click", () => $("#sheet").hidden = true);
+$("#sheet").addEventListener("click", ev => { if (ev.target === $("#sheet")) $("#sheet").hidden = true; });
+$("#shareBtn").addEventListener("click", async () => {
+  if (!resultBlob) return;
+  const f = new File([resultBlob], "3d-character.png", { type: "image/png" });
+  if (navigator.canShare && navigator.canShare({ files: [f] })) {
+    try { await navigator.share({ files: [f], title: mode === "hair" ? "내 새 헤어스타일" : "내 3D 캐릭터" }); return; } catch (e) { if (e.name === "AbortError") return; }
+  }
+  openSheet();
+});
+$("#again").addEventListener("click", () => {
+  file = null; preview.hidden = true; dropEmpty.hidden = false; $("#changeTag").hidden = true; fileInput.value = ""; updateGo();
+  show("stepUpload"); window.scrollTo({top:0,behavior:"smooth"});
+});
+</script>
+</body>
+</html>
