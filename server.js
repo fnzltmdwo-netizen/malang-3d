@@ -1,4 +1,5 @@
-// 말랑 3D 스튜디오 서버 (외부 패키지 없음, Node 18+)
+// 말랑 스튜디오 서버 (외부 패키지 없음, Node 18+)
+// 새 변환 기능은 presets-v숫자.json, 새 화면은 public/page-v숫자.html 로 추가 → server.js 수정 없이 업데이트 가능
 // 실행: node server.js   /   관리자: http://localhost:3000/admin
 const http = require("http");
 const fs = require("fs");
@@ -18,6 +19,7 @@ if (!cfg.apiKey && process.env.OPENAI_API_KEY) cfg.apiKey = process.env.OPENAI_A
 const save = () => { try { fs.writeFileSync(DATA_FILE, JSON.stringify(cfg, null, 2)); } catch (e) { console.error("설정 저장 실패:", e.message); } };
 
 const ipHits = new Map(); // ip -> [timestamps]
+const keepHits = new Map();
 const RESULTS = path.join(require("os").tmpdir(), "malang-results"); fs.mkdirSync(RESULTS, { recursive: true });
 setInterval(() => { try { for (const f of fs.readdirSync(RESULTS)) { const fp = path.join(RESULTS, f); if (Date.now() - fs.statSync(fp).mtimeMs > 2 * 3600e3) fs.unlinkSync(fp); } } catch {} }, 10 * 60e3); // 2시간 뒤 자동 삭제
 function todayStr() { return new Date().toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" }); }
@@ -60,6 +62,80 @@ const animePrompt = (k) => `Redraw this photo as a 2D anime illustration in this
 Make the person clearly recognizable as an anime version of THEMSELVES: keep the same hairstyle, hair colour and length, face shape, glasses and accessories, facial hair, skin tone, expression, pose, clothing and clothing colours, and the overall background composition.
 Create an original character design in this art style. Do not draw or resemble any existing anime or cartoon character, and do not add text, logos, signatures or watermarks.`;
 
+// ---------- 조선시대 초상화 ----------
+const JOSEON = {
+  // 남자
+  king:        { name: "임금",        desc: "a Joseon king in a crimson dragon robe (gonryongpo) with gold five-claw dragon roundels on the chest and shoulders, a black ikseongwan crown and a jade belt, seated on a red lacquered throne before a muted Sun-Moon-Five-Peaks folding screen" },
+  crownprince: { name: "세자",        desc: "a Joseon crown prince in a deep indigo dragon robe with gold roundels and a black ikseongwan crown, seated upright on a carved wooden chair in a quiet palace hall" },
+  minister:    { name: "영의정",      desc: "a high-ranking Joseon prime minister in a dark crimson official robe (danryeongpo) with an embroidered double-crane rank badge on the chest, a black winged samo hat and a rhinoceros-horn belt, seated on a chair draped with a leopard skin, hands folded inside the sleeves" },
+  inspector:   { name: "암행어사",    desc: "a secret royal inspector (amhaeng-eosa) in a plain, worn grey travelling robe and a battered black gat hat, proudly holding up a round bronze horse-tablet badge (mapae), standing at a village gate" },
+  general:     { name: "대장군",      desc: "a Joseon military general in ornate red-and-gold studded armour and a brass-studded helmet, holding a ceremonial sword, seated upright with a fierce, dignified expression" },
+  gwageo:      { name: "장원급제",    desc: "a young scholar who just placed first in the state examination, in a dark green robe and a samo hat with long paper flowers (eosahwa) arching from the hat, holding a rolled royal certificate, beaming proudly" },
+  physician:   { name: "어의",        desc: "a royal court physician in a dark blue official robe and a black samo hat, holding fine acupuncture needles beside a wooden medicine chest with many small herb drawers" },
+  painter:     { name: "도화서 화원", desc: "a royal court painter in a light blue robe and a black gat hat, holding a fine brush over a silk scroll on a low painting table with an ink stone and small pigment dishes" },
+  seonbi:      { name: "선비",        desc: "a Joseon scholar (seonbi) in a white dopo robe with a thin black sash and a tall black horsehair gat hat, holding a folding fan, seated on a straw mat with a few old books and an ink stone beside him" },
+  translator:  { name: "역관",        desc: "a Joseon interpreter-official in a light teal robe and a black gat hat, holding a stack of thread-bound foreign-language books, with a rolled map scroll beside him" },
+  merchant:    { name: "보부상",      desc: "a travelling peddler (bobusang) in a grey jacket and a straw hat with white cotton tassels, carrying a large wooden A-frame back carrier (jige) loaded with goods, holding a walking stick" },
+  pojol:       { name: "포졸",        desc: "a humble Joseon police constable (pojol) in a dark blue jacket with a red sash and a black felt hat, holding a wooden club, standing stiffly at attention with an earnest, slightly comical expression" },
+  farmhand:    { name: "머슴",        desc: "a cheerful farmhand (meoseum) in rough beige hemp clothes with rolled-up trousers and a towel tied around the head, holding a hoe at the edge of a rice paddy" },
+  yeot:        { name: "엿장수",      desc: "a cheerful taffy seller (yeot-jangsu) in plain hemp clothes and a straw hat, holding big iron taffy scissors and a wooden tray of yeot candy" },
+  boatman:     { name: "뱃사공",      desc: "a ferryman in plain hemp clothes and a conical straw hat, standing in a small wooden boat on a misty river, holding a long bamboo pole" },
+  // 여자
+  queen:         { name: "왕비",        desc: "a Joseon queen in a deep blue ceremonial jeogui robe embroidered with pheasant patterns, a large ornate formal wig with gold hairpins and jade ornaments, seated on a royal chair before a muted Sun-Moon-Five-Peaks screen" },
+  princess:      { name: "공주",        desc: "a Joseon princess in a bright green wonsam ceremonial robe with gold-leaf patterns, an elegant formal hairstyle with an ornate jewelled hairpin, seated in a palace pavilion beside blooming peonies" },
+  lady:          { name: "정경부인",    desc: "a noble Joseon lady of the highest rank in a rich green wonsam robe with gold patterns, a formal braided wig with a long binyeo hairpin and norigae tassel ornaments, seated gracefully on a patterned mat" },
+  royaldoctor:   { name: "의녀",        desc: "a royal female physician (uinyeo) in a neat light blue jeogori and dark chima with a black garima headpiece, holding acupuncture needles beside a wooden medicine chest" },
+  warrior:       { name: "여협객",      desc: "a Joseon swordswoman in a dark indigo martial jacket with tied sleeves and a black gat hat with a long bead strap, holding a sword in its scabbard, calm and confident" },
+  sanggung:      { name: "상궁",        desc: "a senior palace court lady (sanggung) in a dark green jeogori and deep blue chima with a neat formal braided hairstyle, holding a red lacquered royal food tray, dignified and stern" },
+  femalepainter: { name: "여류 화원",   desc: "a gifted woman painter in a pale lavender jeogori and indigo chima, holding a brush over a silk scroll of plum blossoms, with ink stones beside her" },
+  maiden:        { name: "규수",        desc: "a young Joseon noble maiden in a pastel yellow jeogori and a crimson chima, hair in a long single braid tied with a red daenggi ribbon, holding a small embroidered pouch, beside a branch of plum blossom" },
+  gaekju:        { name: "객주",        desc: "a wealthy merchant-inn owner in a rich brown jeogori and a dark chima, holding an abacus and a thread-bound ledger, with sacks of goods behind her" },
+  seamstress:    { name: "침방 나인",   desc: "a palace seamstress in a pale pink jeogori and a green chima, sewing fine silk embroidery at a low wooden table" },
+  jumo:          { name: "주모",        desc: "a cheerful tavern keeper (jumo) in a plain white jeogori and a dark chima with an apron, hair in a simple bun with a wooden pin, holding a gourd ladle beside a big earthenware jar of makgeolli" },
+  laundry:       { name: "빨래터 아낙", desc: "a village woman in plain white hemp clothes with her sleeves rolled up, beating laundry with a wooden paddle on a flat stone beside a stream" },
+  tteok:         { name: "떡장수",      desc: "a cheerful rice-cake seller in plain hemp clothes and a head scarf, carrying a big round basket of colourful tteok on her head" },
+  herb:          { name: "나물 처녀",   desc: "a country girl in a faded yellow jeogori and a red chima, holding a small knife and a basket of wild spring greens on a hillside" },
+};
+const JOSEON_TEMPLATE = `Repaint this photo as an authentic 18th-century Joseon dynasty Korean portrait painting (chosang-hwa): ink and mineral pigments on aged, slightly yellowed silk, extremely fine brush linework, subtle layered shading on the face in the traditional Joseon portrait technique, plain muted silk background, tall vertical hanging-scroll composition, leaving a generous empty area of plain silk in the upper right corner.
+Paint the sitter as {desc}.
+LIKENESS: the sitter must be clearly recognizable as THIS SAME PERSON from the photo: keep their exact face shape, eyes and eye size, eyebrows, nose, mouth, ears, skin tone, age, facial hair and natural expression, and keep their gender. If they wear glasses, paint them as round Joseon-era spectacles.
+NATURAL RESULT: make it look like one real painting made by a Joseon court painter, not a photo pasted onto a painting. Paint the face with the same brushwork, pigments and soft lighting as the clothing and background. Give the body realistic proportions for the pose, draw the hands correctly, and keep the head size natural for the body. Props and background should suit the role but stay simple and uncluttered, as in real Joseon portraits.
+Do not write any text, letters, hanja, calligraphy or red seals anywhere in the image. No modern clothing or modern objects.`;
+
+// 모드 = { size, template("{desc}" 자리에 스타일 설명), styles }  ※ presets-v숫자.json 으로 덮어쓰기/추가 가능
+const BUILTIN_MODES = {
+  anim:   { size: "1024x1024", template: "{desc}", styles: { default: { name: "3D 캐릭터", desc: PROMPT } } },
+  hair:   { size: "1024x1024", styles: Object.fromEntries(Object.entries(HAIR).map(([k, v]) => [k, { name: v.name, prompt: hairPrompt(k) }])) },
+  anime:  { size: "1024x1024", styles: Object.fromEntries(Object.entries(ANIME).map(([k, v]) => [k, { name: v.name, prompt: animePrompt(k) }])) },
+  joseon: { size: "1024x1536", template: JOSEON_TEMPLATE, styles: JOSEON },
+};
+function latestFile(dir, re) {
+  try {
+    const list = fs.readdirSync(dir).map((f) => ({ f, v: +(f.match(re) || [])[1] })).filter((x) => x.v > 0);
+    if (list.length) return list.sort((a, b) => b.v - a.v)[0].f;
+  } catch {}
+  return null;
+}
+let presetCache = { file: null, modes: BUILTIN_MODES };
+function getModes() {
+  const f = latestFile(__dirname, /^presets-v(\d+)\.json$/);
+  if (!f) return BUILTIN_MODES;
+  if (presetCache.file === f) return presetCache.modes;
+  try {
+    const extra = JSON.parse(fs.readFileSync(path.join(__dirname, f), "utf8")).modes || {};
+    const merged = { ...BUILTIN_MODES };
+    for (const [k, m] of Object.entries(extra)) merged[k] = { ...(merged[k] || {}), ...m, styles: { ...((merged[k] || {}).styles || {}), ...(m.styles || {}) } };
+    presetCache = { file: f, modes: merged };
+    console.log("프리셋 불러옴:", f);
+  } catch (e) { console.error("프리셋 오류:", f, e.message); presetCache = { file: f, modes: BUILTIN_MODES }; }
+  return presetCache.modes;
+}
+function buildPrompt(modeKey, styleKey) {
+  const m = getModes()[modeKey]; if (!m) return null;
+  const st = (m.styles || {})[styleKey]; if (!st) return null;
+  return { prompt: st.prompt || (m.template || "{desc}").replace("{desc}", st.desc || ""), size: st.size || m.size || "1024x1024" };
+}
+
 // ---------- 유틸 ----------
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon" };
 function send(res, code, body, type = "application/json; charset=utf-8") {
@@ -82,11 +158,11 @@ const clientIp = (req) => (req.headers["x-forwarded-for"] || "").split(",")[0].t
 
 // ---------- OpenAI 변환 ----------
 const MODELS = ["gpt-image-1.5", "gpt-image-1"]; // 최신 모델 먼저, 없으면 자동으로 다음 모델
-async function convert(imageBuf, prompt = PROMPT, model = MODELS[0]) {
+async function convert(imageBuf, prompt = PROMPT, size = "1024x1024", model = MODELS[0]) {
   const form = new FormData();
   form.append("model", model);
   form.append("prompt", prompt);
-  form.append("size", "1024x1024");
+  form.append("size", size);
   form.append("quality", cfg.quality || "medium");
   form.append("input_fidelity", "high"); // 얼굴·인물 특징 보존
   form.append("image", new Blob([imageBuf], { type: "image/png" }), "photo.png");
@@ -96,8 +172,8 @@ async function convert(imageBuf, prompt = PROMPT, model = MODELS[0]) {
   if (!r.ok) {
     const m = data.error?.message || text.slice(0, 200);
     const next = MODELS[MODELS.indexOf(model) + 1];
-    if (next && (r.status === 404 || /model|not found|does not exist|invalid_request/i.test(m) && /model/i.test(m))) { console.log(`${model} 사용 불가 → ${next}로 재시도`); return convert(imageBuf, prompt, next); }
-    if (r.status === 401) throw new Error("관리자가 등록한 API 키가 올바르지 않아요. 관리자에게 알려주세요.");
+    if (next && (r.status === 404 || /model|not found|does not exist|invalid_request/i.test(m) && /model/i.test(m))) { console.log(`${model} 사용 불가 → ${next}로 재시도`); return convert(imageBuf, prompt, size, next); }
+    if (r.status === 401) { console.error("OpenAI 401:", m); throw new Error("OpenAI가 API 키를 거절했어요. 관리자에게 알려주세요. (" + m.slice(0, 90) + ")"); }
     if (r.status === 403 && /verif/i.test(m)) throw new Error("OpenAI 조직 인증이 필요해요. (관리자: platform.openai.com → Settings → Organization → Verify)");
     if (r.status === 429) throw new Error("지금 요청이 몰렸거나 크레딧이 부족해요. 잠시 후 다시 시도해 주세요.");
     if (/safety|moderation/i.test(m)) throw new Error("이 사진은 안전 정책으로 변환이 거절됐어요. 다른 사진으로 시도해 주세요.");
@@ -107,13 +183,7 @@ async function convert(imageBuf, prompt = PROMPT, model = MODELS[0]) {
 }
 
 // 메인 페이지 = public/page-v숫자.html 중 가장 높은 번호 (없으면 index.html)
-function latestPage() {
-  try {
-    const pages = fs.readdirSync(PUBLIC).map((f) => ({ f, v: +(f.match(/^page-v(\d+)\.html$/) || [])[1] })).filter((x) => x.v > 0);
-    if (pages.length) return pages.sort((a, b) => b.v - a.v)[0].f;
-  } catch {}
-  return "index.html";
-}
+function latestPage() { return latestFile(PUBLIC, /^page-v(\d+)\.html$/) || "index.html"; }
 
 // ---------- 서버 ----------
 http.createServer(async (req, res) => {
@@ -129,33 +199,36 @@ http.createServer(async (req, res) => {
       const hits = (ipHits.get(ip) || []).filter((t) => now - t < 3600e3);
       if (cfg.perIpLimit > 0 && hits.length >= cfg.perIpLimit) return send(res, 429, { error: `한 시간에 ${cfg.perIpLimit}번까지만 변환할 수 있어요. 잠시 후 다시 시도해 주세요.` });
       let buf; try { buf = await readBody(req, MAX_UPLOAD); } catch { return send(res, 413, { error: "사진이 너무 커요 (12MB 이하)" }); }
-      let prompt = PROMPT;
-      const mode = url.searchParams.get("mode");
-      if (mode === "anime") {
-        const k = url.searchParams.get("style");
-        if (!ANIME[k]) return send(res, 400, { error: "그림체를 골라 주세요." });
-        prompt = animePrompt(k);
-      } else if (mode === "hair") {
-        const k = url.searchParams.get("style");
-        if (!HAIR[k]) return send(res, 400, { error: "헤어스타일을 골라 주세요." });
-        prompt = hairPrompt(k);
-      }
-      const b64 = await convert(buf, prompt);
+      const job = buildPrompt(url.searchParams.get("mode") || "anim", url.searchParams.get("style") || "default");
+      if (!job) return send(res, 400, { error: "스타일을 다시 골라 주세요." });
+      const b64 = await convert(buf, job.prompt, job.size);
       hits.push(now); ipHits.set(ip, hits);
       cfg.todayCount++; cfg.total++; save();
       const id = crypto.randomBytes(8).toString("hex");
       fs.writeFileSync(path.join(RESULTS, id + ".png"), Buffer.from(b64, "base64"));
       return send(res, 200, { image: "data:image/png;base64," + b64, url: `/img/${id}.png` });
     }
+    // 화면에서 꾸민 최종 이미지 보관 (폰 저장용 주소 발급)
+    if (req.method === "POST" && p === "/api/keep") {
+      const ip = clientIp(req), now = Date.now();
+      const kh = (keepHits.get(ip) || []).filter((t) => now - t < 3600e3);
+      if (kh.length >= 40) return send(res, 429, { error: "잠시 후 다시 시도해 주세요." });
+      let buf; try { buf = await readBody(req, 10 * 1024 * 1024); } catch { return send(res, 413, { error: "이미지가 너무 커요" }); }
+      if (buf.length < 8 || buf.readUInt32BE(0) !== 0x89504e47) return send(res, 400, { error: "PNG 이미지만 가능해요" });
+      kh.push(now); keepHits.set(ip, kh);
+      const id = crypto.randomBytes(8).toString("hex");
+      fs.writeFileSync(path.join(RESULTS, id + ".png"), buf);
+      return send(res, 200, { url: `/img/${id}.png` });
+    }
     // 결과 이미지 (?dl=1 이면 다운로드로)
     const im = p.match(/^\/img\/([a-f0-9]{16})\.png$/);
     if (im) {
       const fp = path.join(RESULTS, im[1] + ".png");
       if (!fs.existsSync(fp)) return send(res, 404, "만료된 이미지예요. 다시 변환해 주세요.", "text/plain; charset=utf-8");
-      res.writeHead(200, { "Content-Type": "image/png", "Cache-Control": "private, max-age=7200", ...(url.searchParams.get("dl") ? { "Content-Disposition": 'attachment; filename="3d-character.png"' } : {}) });
+      res.writeHead(200, { "Content-Type": "image/png", "Cache-Control": "private, max-age=7200", ...(url.searchParams.get("dl") ? { "Content-Disposition": 'attachment; filename="malang-' + im[1].slice(0, 6) + '.png"' } : {}) });
       return fs.createReadStream(fp).pipe(res);
     }
-    if (p === "/api/status") { rollDay(); return send(res, 200, { anime: Object.fromEntries(Object.entries(ANIME).map(([k, v]) => [k, v.name])), hair: Object.fromEntries(Object.entries(HAIR).map(([k, v]) => [k, v.name])), ready: !!cfg.apiKey, left: cfg.dailyLimit > 0 ? Math.max(0, cfg.dailyLimit - cfg.todayCount) : null }); }
+    if (p === "/api/status") { rollDay(); return send(res, 200, { modes: Object.fromEntries(Object.entries(getModes()).map(([mk, m]) => [mk, Object.fromEntries(Object.entries(m.styles || {}).map(([k, v]) => [k, v.name]))])), ready: !!cfg.apiKey, left: cfg.dailyLimit > 0 ? Math.max(0, cfg.dailyLimit - cfg.todayCount) : null }); }
 
     // 관리자 API
     if (p.startsWith("/api/admin")) {
