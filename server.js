@@ -45,6 +45,21 @@ const hairPrompt = (k) => `Edit this photo: change ONLY the man's hairstyle to $
 This must stay a real, photorealistic photograph of the EXACT SAME PERSON. Do not change the face at all: same face shape, eyes and eye size, eyebrows, nose, mouth, ears, skin tone and skin texture, facial hair, age and expression. Keep the same head angle, pose, framing, clothing, background, lighting and camera quality.
 The new hair must look natural and realistic on his head, with correct hairline, realistic strands and believable lighting that matches the original photo. No beauty filter, no retouching, no cartoon or 3D style.`;
 
+// ---------- 애니 주인공 변신 ----------
+const ANIME = {
+  retro:   { name: "90년대 셀애니", desc: "a 1990s Japanese TV cel animation frame: hand-painted cel shading with hard shadow edges, slightly muted retro colour palette, soft film grain and subtle VHS warmth, classic 90s anime eyes and hair shapes" },
+  theater: { name: "극장판 감성",   desc: "a warm hand-drawn feature-film anime still: soft painterly watercolour backgrounds, gentle rounded character design, cozy natural light, calm nostalgic summer-day mood" },
+  sky:     { name: "하늘 로맨스",   desc: "a modern romantic anime film still: ultra-detailed glowing sky and clouds, golden-hour light with lens flare and light particles, crisp clean line art, luminous saturated colours, emotional cinematic composition" },
+  shonen:  { name: "소년만화 주인공", desc: "a bold shonen battle-manga hero illustration: thick confident ink lines, sharp determined eyes, dynamic dramatic shading, energy aura and speed lines in the background, high-contrast colours" },
+  shojo:   { name: "순정만화",      desc: "a classic shojo manga illustration: large sparkling eyes with many highlights, delicate fine line art, floating flower petals and sparkles, soft pastel screentone background" },
+  chibi:   { name: "SD 귀요미",     desc: "a cute chibi / super-deformed anime character: big head and tiny body (about 2.5 heads tall), round cheeks with blush, simple shiny eyes, playful pose, clean pastel background" },
+  webtoon: { name: "웹툰 주인공",   desc: "a polished Korean webtoon panel: clean digital line art, soft cel shading with smooth gradients, attractive modern character design, bright clean colours, slice-of-life setting" },
+  idol:    { name: "아이돌 애니",   desc: "a bright idol anime key visual: glossy colourful stage lighting, sparkling highlights, cheerful dynamic pose, vivid candy colours, star and light effects" },
+};
+const animePrompt = (k) => `Redraw this photo as a 2D anime illustration in this style: ${ANIME[k].desc}.
+Make the person clearly recognizable as an anime version of THEMSELVES: keep the same hairstyle, hair colour and length, face shape, glasses and accessories, facial hair, skin tone, expression, pose, clothing and clothing colours, and the overall background composition.
+Create an original character design in this art style. Do not draw or resemble any existing anime or cartoon character, and do not add text, logos, signatures or watermarks.`;
+
 // ---------- 유틸 ----------
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon" };
 function send(res, code, body, type = "application/json; charset=utf-8") {
@@ -91,6 +106,15 @@ async function convert(imageBuf, prompt = PROMPT, model = MODELS[0]) {
   return data.data[0].b64_json;
 }
 
+// 메인 페이지 = public/page-v숫자.html 중 가장 높은 번호 (없으면 index.html)
+function latestPage() {
+  try {
+    const pages = fs.readdirSync(PUBLIC).map((f) => ({ f, v: +(f.match(/^page-v(\d+)\.html$/) || [])[1] })).filter((x) => x.v > 0);
+    if (pages.length) return pages.sort((a, b) => b.v - a.v)[0].f;
+  } catch {}
+  return "index.html";
+}
+
 // ---------- 서버 ----------
 http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://x");
@@ -106,7 +130,12 @@ http.createServer(async (req, res) => {
       if (cfg.perIpLimit > 0 && hits.length >= cfg.perIpLimit) return send(res, 429, { error: `한 시간에 ${cfg.perIpLimit}번까지만 변환할 수 있어요. 잠시 후 다시 시도해 주세요.` });
       let buf; try { buf = await readBody(req, MAX_UPLOAD); } catch { return send(res, 413, { error: "사진이 너무 커요 (12MB 이하)" }); }
       let prompt = PROMPT;
-      if (url.searchParams.get("mode") === "hair") {
+      const mode = url.searchParams.get("mode");
+      if (mode === "anime") {
+        const k = url.searchParams.get("style");
+        if (!ANIME[k]) return send(res, 400, { error: "그림체를 골라 주세요." });
+        prompt = animePrompt(k);
+      } else if (mode === "hair") {
         const k = url.searchParams.get("style");
         if (!HAIR[k]) return send(res, 400, { error: "헤어스타일을 골라 주세요." });
         prompt = hairPrompt(k);
@@ -126,7 +155,7 @@ http.createServer(async (req, res) => {
       res.writeHead(200, { "Content-Type": "image/png", "Cache-Control": "private, max-age=7200", ...(url.searchParams.get("dl") ? { "Content-Disposition": 'attachment; filename="3d-character.png"' } : {}) });
       return fs.createReadStream(fp).pipe(res);
     }
-    if (p === "/api/status") { rollDay(); return send(res, 200, { hair: Object.fromEntries(Object.entries(HAIR).map(([k, v]) => [k, v.name])), ready: !!cfg.apiKey, left: cfg.dailyLimit > 0 ? Math.max(0, cfg.dailyLimit - cfg.todayCount) : null }); }
+    if (p === "/api/status") { rollDay(); return send(res, 200, { anime: Object.fromEntries(Object.entries(ANIME).map(([k, v]) => [k, v.name])), hair: Object.fromEntries(Object.entries(HAIR).map(([k, v]) => [k, v.name])), ready: !!cfg.apiKey, left: cfg.dailyLimit > 0 ? Math.max(0, cfg.dailyLimit - cfg.todayCount) : null }); }
 
     // 관리자 API
     if (p.startsWith("/api/admin")) {
@@ -149,7 +178,7 @@ http.createServer(async (req, res) => {
     }
 
     // 정적 파일
-    const file = path.join(PUBLIC, p === "/" ? "index.html" : p === "/admin" ? "admin.html" : path.normalize(p));
+    const file = path.join(PUBLIC, p === "/" ? latestPage() : p === "/admin" ? "admin.html" : path.normalize(p));
     if (!file.startsWith(PUBLIC) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) return send(res, 404, "not found", "text/plain");
     res.writeHead(200, { "Content-Type": MIME[path.extname(file)] || "application/octet-stream" });
     fs.createReadStream(file).pipe(res);
