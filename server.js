@@ -28,6 +28,23 @@ IDENTITY MUST BE PRESERVED: this must be clearly recognizable as the SAME PERSON
 IMPORTANT: keep the eyes at their natural, realistic size and spacing exactly as in the photo. Do NOT enlarge the eyes, do NOT exaggerate or cartoonify any facial feature, keep all facial proportions realistic.
 Only change the rendering style: smooth stylized 3D skin with subtle subsurface scattering, soft cinematic studio lighting, shallow depth of field, polished CGI materials. Do not change who the person is.`;
 
+// ---------- 헤어 변경 ----------
+const HAIR = {
+  dandy:    { name: "댄디컷",   desc: "a Korean dandy cut: soft natural fringe brushed down over the forehead, neat rounded shape, tidy tapered sides, natural black hair" },
+  twoblock: { name: "투블럭",   desc: "a Korean two-block cut: short clipped sides and back, longer textured top with fringe falling forward, natural black hair" },
+  gareuma:  { name: "가르마펌", desc: "a Korean side-part perm (6:4 gareuma perm): hair parted on one side with soft C-curl waves sweeping away from the part, forehead partly visible, natural dark brown hair" },
+  ash:      { name: "애즈펌",   desc: "a Korean 'as' perm: medium-length fringe with gentle inward C-curls at the tips framing the forehead and eyebrows, soft volume, natural dark hair" },
+  leaf:     { name: "리프컷",   desc: "a Korean leaf cut: fringe split in the middle and swept outward to both sides like leaves, light layered volume, natural dark hair" },
+  shadow:   { name: "쉐도우펌", desc: "a Korean shadow perm: medium-length hair with subtle loose waves and airy texture, fringe slightly covering the forehead, natural dark hair" },
+  slick:    { name: "슬릭백",   desc: "a slicked-back pomade style: all hair combed straight back with a clean glossy finish, short faded sides, forehead fully visible" },
+  crop:     { name: "크롭컷",   desc: "a textured crop cut: very short sides with skin fade, short choppy textured top with a short blunt fringe" },
+  hippie:   { name: "히피펌",   desc: "a hippie perm: shoulder-skimming medium-long hair with lots of loose curly waves and big natural volume" },
+  buzz:     { name: "반삭",     desc: "a clean buzz cut: hair evenly clipped very short all over the head" },
+};
+const hairPrompt = (k) => `Edit this photo: change ONLY the man's hairstyle to ${HAIR[k].desc}.
+This must stay a real, photorealistic photograph of the EXACT SAME PERSON. Do not change the face at all: same face shape, eyes and eye size, eyebrows, nose, mouth, ears, skin tone and skin texture, facial hair, age and expression. Keep the same head angle, pose, framing, clothing, background, lighting and camera quality.
+The new hair must look natural and realistic on his head, with correct hairline, realistic strands and believable lighting that matches the original photo. No beauty filter, no retouching, no cartoon or 3D style.`;
+
 // ---------- 유틸 ----------
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon" };
 function send(res, code, body, type = "application/json; charset=utf-8") {
@@ -50,10 +67,10 @@ const clientIp = (req) => (req.headers["x-forwarded-for"] || "").split(",")[0].t
 
 // ---------- OpenAI 변환 ----------
 const MODELS = ["gpt-image-1.5", "gpt-image-1"]; // 최신 모델 먼저, 없으면 자동으로 다음 모델
-async function convert(imageBuf, model = MODELS[0]) {
+async function convert(imageBuf, prompt = PROMPT, model = MODELS[0]) {
   const form = new FormData();
   form.append("model", model);
-  form.append("prompt", PROMPT);
+  form.append("prompt", prompt);
   form.append("size", "1024x1024");
   form.append("quality", cfg.quality || "medium");
   form.append("input_fidelity", "high"); // 얼굴·인물 특징 보존
@@ -64,7 +81,7 @@ async function convert(imageBuf, model = MODELS[0]) {
   if (!r.ok) {
     const m = data.error?.message || text.slice(0, 200);
     const next = MODELS[MODELS.indexOf(model) + 1];
-    if (next && (r.status === 404 || /model|not found|does not exist|invalid_request/i.test(m) && /model/i.test(m))) { console.log(`${model} 사용 불가 → ${next}로 재시도`); return convert(imageBuf, next); }
+    if (next && (r.status === 404 || /model|not found|does not exist|invalid_request/i.test(m) && /model/i.test(m))) { console.log(`${model} 사용 불가 → ${next}로 재시도`); return convert(imageBuf, prompt, next); }
     if (r.status === 401) throw new Error("관리자가 등록한 API 키가 올바르지 않아요. 관리자에게 알려주세요.");
     if (r.status === 403 && /verif/i.test(m)) throw new Error("OpenAI 조직 인증이 필요해요. (관리자: platform.openai.com → Settings → Organization → Verify)");
     if (r.status === 429) throw new Error("지금 요청이 몰렸거나 크레딧이 부족해요. 잠시 후 다시 시도해 주세요.");
@@ -88,7 +105,13 @@ http.createServer(async (req, res) => {
       const hits = (ipHits.get(ip) || []).filter((t) => now - t < 3600e3);
       if (cfg.perIpLimit > 0 && hits.length >= cfg.perIpLimit) return send(res, 429, { error: `한 시간에 ${cfg.perIpLimit}번까지만 변환할 수 있어요. 잠시 후 다시 시도해 주세요.` });
       let buf; try { buf = await readBody(req, MAX_UPLOAD); } catch { return send(res, 413, { error: "사진이 너무 커요 (12MB 이하)" }); }
-      const b64 = await convert(buf);
+      let prompt = PROMPT;
+      if (url.searchParams.get("mode") === "hair") {
+        const k = url.searchParams.get("style");
+        if (!HAIR[k]) return send(res, 400, { error: "헤어스타일을 골라 주세요." });
+        prompt = hairPrompt(k);
+      }
+      const b64 = await convert(buf, prompt);
       hits.push(now); ipHits.set(ip, hits);
       cfg.todayCount++; cfg.total++; save();
       const id = crypto.randomBytes(8).toString("hex");
@@ -103,7 +126,7 @@ http.createServer(async (req, res) => {
       res.writeHead(200, { "Content-Type": "image/png", "Cache-Control": "private, max-age=7200", ...(url.searchParams.get("dl") ? { "Content-Disposition": 'attachment; filename="3d-character.png"' } : {}) });
       return fs.createReadStream(fp).pipe(res);
     }
-    if (p === "/api/status") { rollDay(); return send(res, 200, { ready: !!cfg.apiKey, left: cfg.dailyLimit > 0 ? Math.max(0, cfg.dailyLimit - cfg.todayCount) : null }); }
+    if (p === "/api/status") { rollDay(); return send(res, 200, { hair: Object.fromEntries(Object.entries(HAIR).map(([k, v]) => [k, v.name])), ready: !!cfg.apiKey, left: cfg.dailyLimit > 0 ? Math.max(0, cfg.dailyLimit - cfg.todayCount) : null }); }
 
     // 관리자 API
     if (p.startsWith("/api/admin")) {
