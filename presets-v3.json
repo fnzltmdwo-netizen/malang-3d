@@ -1,0 +1,213 @@
+{
+ "modes": {
+  "joseon": {
+   "template": "Create an authentic 18th-century Joseon dynasty Korean portrait painting of the person in this photo, shown as {desc}. If the role is a figure from Korean folklore, paint it as a Joseon-era folk painting of that legend, keeping the person's own face.\n\nTHE WHOLE IMAGE MUST BE ONE HAND-PAINTED PAINTING. The face is painted in exactly the same medium as everything else: fine brush strokes and mineral pigments on aged, slightly yellowed silk, the same muted earthy palette, the same soft even light, and gentle layered shading in the traditional Joseon portrait technique. No photographic skin texture, no photographic lighting or shadows, no camera sharpness or depth of field. The face must share the same colour grading, softness and silk grain as the clothes and background, so nothing looks pasted in.\n\nLIKENESS: keep the person clearly recognisable by faithfully painting their real facial structure from the photo: face shape and jawline, eye shape and eye size, eyelids, eyebrows, nose, lips, ears, skin tone, age, moles and facial hair. Keep their gender and build. Do not beautify, slim or cartoonify them.\n\nPERIOD DETAILS: unless the role description says otherwise, give them a period-correct Joseon hairstyle instead of their modern haircut. For men: hair gathered into a topknot (sangtu) under the hat with a black horsehair headband (manggeon) across the forehead, no modern bangs or fringe showing. For women: a period hairstyle suited to the role (braid, chignon with a binyeo hairpin, or formal wig), no modern fringe. Only if the person is clearly wearing glasses in the photo, paint round Joseon-era spectacles; otherwise no glasses.\n\nPOSE: do NOT copy the pose, hand gestures, head tilt or background of the photo. Use a calm, dignified formal portrait pose that suits the role, seated or standing, front or three-quarter view, hands resting naturally or holding the role's prop, with correctly painted hands and realistic body proportions.\n\nCOMPOSITION: tall vertical hanging-scroll format framed from about the knees or waist up so the face is clearly visible, simple uncluttered background suited to the role, and an empty area of plain silk in the upper right corner.\n\nDo not write any text, letters, hanja, calligraphy or red seals anywhere. No modern clothing or modern objects.",
+   "styles": {
+    "grandprince": {
+     "name": "대군",
+     "desc": "a Joseon grand prince (daegun) in a rich purple silk robe with a gold-embroidered roundel on the chest and a black samo hat, seated in an elegant palace study"
+    },
+    "policechief": {
+     "name": "포도대장",
+     "desc": "the chief of the Joseon police bureau in a red military robe (gunbok) with a black jeonrip hat decorated with a peacock feather, holding a command baton"
+    },
+    "archer": {
+     "name": "신궁",
+     "desc": "a legendary master archer in a dark indigo martial robe with tied sleeves and a black jeonrip hat, drawing a traditional Korean horn bow at an archery range"
+    },
+    "satto": {
+     "name": "사또",
+     "desc": "a county magistrate (satto) in a dark blue official robe and a black samo hat, seated on a raised wooden platform in the courtyard of a local government office"
+    },
+    "pansori": {
+     "name": "명창",
+     "desc": "a famous pansori singer in a white dopo robe and a black gat hat, holding an open folding fan mid-song, with a seated drummer's barrel drum (buk) beside him"
+    },
+    "geomancer": {
+     "name": "지관",
+     "desc": "a feng-shui geomancer (jigwan) in a grey robe and a black gat hat, holding a round wooden geomantic compass on a mountain ridge"
+    },
+    "hunjang": {
+     "name": "훈장",
+     "desc": "a village schoolmaster (hunjang) in a white robe and a black horsehair jeongjagwan hat, holding a thin rod beside a low desk with thread-bound books in a village schoolhouse (seodang)"
+    },
+    "gwangdae": {
+     "name": "광대",
+     "desc": "a cheerful street performer (gwangdae) in colourful hemp clothes and a small hat, balancing on a tightrope with an open folding fan"
+    },
+    "blacksmith": {
+     "name": "대장장이",
+     "desc": "a village blacksmith in rough hemp clothes and a leather apron with a towel around his head, holding a hammer over an anvil beside a glowing forge"
+    },
+    "woodcutter": {
+     "name": "나무꾼",
+     "desc": "a woodcutter in plain hemp clothes carrying a wooden A-frame (jige) piled with firewood, holding an axe on a misty mountain path"
+    },
+    "daebi": {
+     "name": "대비",
+     "desc": "a dignified queen dowager in a dark purple ceremonial robe with gold phoenix patterns and an ornate formal hairstyle with gold and jade pins, seated on a royal chair before a muted folding screen"
+    },
+    "consort": {
+     "name": "후궁",
+     "desc": "a royal consort (bin) in a rose-pink dangui jacket with gold-leaf patterns and a deep red chima, an elaborate formal hairstyle with jewelled pins, seated in a palace chamber"
+    },
+    "gayageum": {
+     "name": "가야금 명인",
+     "desc": "a gayageum virtuoso in an elegant jade-green jeogori and a deep red chima, playing a twelve-string gayageum resting on her lap"
+    },
+    "damo": {
+     "name": "다모",
+     "desc": "a damo (female police investigator) in a dark navy jacket with a red sash and a black head cloth, holding a short sword in its scabbard, sharp and alert"
+    },
+    "poet": {
+     "name": "여류 시인",
+     "desc": "a woman poet in a pale blue jeogori and an indigo chima, writing hangul poetry with a brush on paper at a low desk by a lotus pond"
+    },
+    "mudang": {
+     "name": "만신",
+     "desc": "a powerful shaman (mudang) in a bright red and blue ceremonial robe and a tall ceremonial hat, holding a fan and a cluster of brass bells, colourful ritual flags behind"
+    },
+    "kitchen": {
+     "name": "수라간 나인",
+     "desc": "a royal kitchen court lady in a pale yellow jeogori and a dark blue chima with a neat braided hairstyle, carefully arranging dishes on a royal dining table"
+    },
+    "haenyeo": {
+     "name": "해녀",
+     "desc": "a Jeju diver (haenyeo) in white cotton diving clothes with a net bag and a round orange float (taewak), standing on a black volcanic rocky shore"
+    },
+    "marketwoman": {
+     "name": "장터 아낙",
+     "desc": "a lively market woman in plain hemp clothes and a head scarf, selling fish from a bamboo basket at a busy village market"
+    },
+    "waterjar": {
+     "name": "물동이 처녀",
+     "desc": "a village girl in a faded pink jeogori and a navy chima, carrying a clay water jar on her head beside an old stone well"
+    },
+    "dokkaebi": {
+     "name": "도깨비",
+     "desc": "a legendary dokkaebi from Korean folklore: a mischievous figure in a rough tiger-skin vest over hemp clothes, with two small horns on the forehead, holding a magic wooden club (dokkaebi bangmangi), faint blue will-o'-the-wisp flames floating around him"
+    },
+    "jeoseung": {
+     "name": "저승사자",
+     "desc": "a Korean grim reaper (jeoseung saja) from folklore in a flowing black dopo robe and a tall black gat hat, holding a scroll of names, with a calm, mysterious expression, standing in drifting grey mist"
+    },
+    "sansin": {
+     "name": "산신령",
+     "desc": "a mountain spirit sage (sansinryeong) from folklore in flowing white robes, holding a gnarled wooden staff, a calm white tiger lying beside him among pine trees and soft clouds"
+    },
+    "doseungji": {
+     "name": "도승지",
+     "desc": "the king's chief royal secretary (doseungji) in a deep red official robe with a crane rank badge and a black samo hat, holding a royal decree scroll inside the palace"
+    },
+    "monk": {
+     "name": "큰스님",
+     "desc": "a respected Buddhist monk with a cleanly shaved head, in grey robes with a red kasaya draped over one shoulder, holding wooden prayer beads in front of a mountain temple"
+    },
+    "horseman": {
+     "name": "기마무사",
+     "desc": "a mounted cavalry warrior in a dark red military uniform and a black jeonrip hat, sitting on a brown horse and holding a long spear"
+    },
+    "falconer": {
+     "name": "매사냥꾼",
+     "desc": "a falconer (eungbangi) in a padded hunting jacket and a fur hat, with a hawk perched on his leather-gloved arm in a snowy field"
+    },
+    "bowmaker": {
+     "name": "궁장",
+     "desc": "a master bow maker (gungjang) at a wooden workbench, carefully bending a horn bow, with arrows and tools around him"
+    },
+    "potter": {
+     "name": "도공",
+     "desc": "a master potter in hemp clothes at a wooden potter's wheel, shaping a large white porcelain moon jar"
+    },
+    "chef": {
+     "name": "숙수",
+     "desc": "a royal palace cook (suksu) in a white cooking jacket and head cloth, holding a large ladle beside steaming iron pots"
+    },
+    "hunter": {
+     "name": "포수",
+     "desc": "a tiger hunter (posu) in a padded jacket and a fur hat, holding a matchlock rifle, with a tiger skin draped over a rock"
+    },
+    "talchum": {
+     "name": "탈춤꾼",
+     "desc": "a mask dancer in a colourful dance costume with long white sleeves, a carved wooden dance mask pushed up on top of his head so his face is fully visible, mid-dance"
+    },
+    "ssireum": {
+     "name": "씨름 장사",
+     "desc": "a proud ssireum wrestling champion in hemp trousers with a cloth thigh belt (satba), standing in a sand ring next to a prize ox wearing a flower garland"
+    },
+    "gamakkun": {
+     "name": "가마꾼",
+     "desc": "a palanquin bearer in a simple jacket and a headband, shouldering the wooden pole of an ornate palanquin"
+    },
+    "muljangsu": {
+     "name": "물장수",
+     "desc": "a water seller in plain hemp clothes carrying two wooden water buckets on a shoulder pole along a village lane"
+    },
+    "jipsin": {
+     "name": "짚신장수",
+     "desc": "a straw-sandal maker sitting on a straw mat weaving straw sandals (jipsin), with finished pairs hanging beside him"
+    },
+    "gumiho": {
+     "name": "구미호",
+     "desc": "a nine-tailed fox spirit (gumiho) from Korean folklore disguised as a Joseon woman in a white jeogori and a red chima, nine fluffy white fox tails fanning out behind her under a full moon"
+    },
+    "seonnyeo": {
+     "name": "선녀",
+     "desc": "a heavenly maiden (seonnyeo) from Korean folklore in flowing pastel celestial robes with long floating silk ribbons, descending on soft clouds"
+    },
+    "yongnyeo": {
+     "name": "용녀",
+     "desc": "the Dragon King's daughter from Korean folklore in shimmering blue-green robes decorated with pearls and wave patterns, a small jade dragon crown, rising from the sea holding a glowing pearl"
+    },
+    "ongju": {
+     "name": "옹주",
+     "desc": "a Joseon princess (ongju) in a pink dangui jacket with gold patterns and a deep green chima, an elegant formal hairstyle with a jewelled binyeo, seated in a palace garden"
+    },
+    "sworddancer": {
+     "name": "검무 명인",
+     "desc": "a court sword dancer in a colourful military-style dance costume (jeonbok) and a black hat, holding two short dancing swords in an elegant pose"
+    },
+    "haegeum": {
+     "name": "해금 악사",
+     "desc": "a court musician in a light green jeogori and a navy chima, playing a two-string haegeum fiddle"
+    },
+    "femalearcher": {
+     "name": "여궁사",
+     "desc": "a woman archer in a dark martial jacket with tied sleeves, drawing a traditional horn bow at an archery range"
+    },
+    "teamaster": {
+     "name": "다인",
+     "desc": "a refined tea master in a cream jeogori and a dusty blue chima, pouring tea from a celadon teapot at a low wooden table"
+    },
+    "weaver": {
+     "name": "베 짜는 여인",
+     "desc": "a weaver in plain white clothes working at a wooden loom, weaving hemp cloth"
+    },
+    "swing": {
+     "name": "그네 아씨",
+     "desc": "a noble young lady in a bright yellow jeogori and a red chima, riding a tall rope swing on Dano festival day with ribbons flying"
+    },
+    "apothecary": {
+     "name": "약방 아씨",
+     "desc": "a young apothecary assistant grinding medicinal herbs with a stone mortar in a herbal medicine shop full of small wooden drawers"
+    },
+    "bangmul": {
+     "name": "방물장수",
+     "desc": "a travelling trinket peddler (bangmul-jangsu) with an open cloth bundle of hairpins, mirrors and silk ribbons"
+    },
+    "onggi": {
+     "name": "옹기장수",
+     "desc": "an earthenware seller standing beside rows of large brown onggi jars at a village market"
+    },
+    "chamoe": {
+     "name": "참외장수",
+     "desc": "a melon seller with a big basket of yellow Korean melons (chamoe) at a summer market"
+    },
+    "neolttwigi": {
+     "name": "널뛰기 소녀",
+     "desc": "a cheerful girl jumping high on a seesaw board (neolttwigi) at a lunar new year festival, skirt and braid flying"
+    }
+   }
+  }
+ }
+}
