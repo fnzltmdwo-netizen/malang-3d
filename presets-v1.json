@@ -1,0 +1,89 @@
+{
+ "modes": {
+  "joseon": {
+   "template": "Transform the person in this photo into a figure in an authentic Joseon dynasty Korean portrait painting.\nMOST IMPORTANT - IT MUST LOOK LIKE THE REAL PERSON IN THE PHOTO HAS BEEN TRANSFORMED. Copy their real face exactly as it is in the photo: the same face shape and jawline, the same eyes (shape, size, spacing and eyelids), the same eyebrows, nose, lips, ears, skin tone, moles, age, facial hair and natural expression. Keep their gender and body build. Anyone who knows this person should instantly recognise them. Paint the face with lifelike, almost photographic realism, the way the finest Joseon court portraits captured real faces. Do not idealise, beautify, slim, age, de-age or cartoonify the face, and do not change the eye size.\nThe person is shown as {desc}.\nPainting style: ink and mineral pigments on aged, slightly yellowed silk, fine brushwork, soft natural light. The face, costume and background must blend into one natural painting, not a photo pasted onto a painting. Realistic body proportions and correctly drawn hands. Tall vertical hanging-scroll composition framed from about the knees or waist up so the face is large and clearly visible, leaving an empty area of plain silk in the upper right corner. Props and background suit the role but stay simple and uncluttered.\nIf they wear glasses, render them as round Joseon-era spectacles. Do not write any text, letters, hanja, calligraphy or red seals anywhere. No modern clothing or modern objects.",
+   "styles": {
+    "grandprince": {
+     "name": "대군",
+     "desc": "a Joseon grand prince (daegun) in a rich purple silk robe with a gold-embroidered roundel on the chest and a black samo hat, seated in an elegant palace study"
+    },
+    "policechief": {
+     "name": "포도대장",
+     "desc": "the chief of the Joseon police bureau in a red military robe (gunbok) with a black jeonrip hat decorated with a peacock feather, holding a command baton"
+    },
+    "archer": {
+     "name": "신궁",
+     "desc": "a legendary master archer in a dark indigo martial robe with tied sleeves and a black jeonrip hat, drawing a traditional Korean horn bow at an archery range"
+    },
+    "satto": {
+     "name": "사또",
+     "desc": "a county magistrate (satto) in a dark blue official robe and a black samo hat, seated on a raised wooden platform in the courtyard of a local government office"
+    },
+    "pansori": {
+     "name": "명창",
+     "desc": "a famous pansori singer in a white dopo robe and a black gat hat, holding an open folding fan mid-song, with a seated drummer's barrel drum (buk) beside him"
+    },
+    "geomancer": {
+     "name": "지관",
+     "desc": "a feng-shui geomancer (jigwan) in a grey robe and a black gat hat, holding a round wooden geomantic compass on a mountain ridge"
+    },
+    "hunjang": {
+     "name": "훈장",
+     "desc": "a village schoolmaster (hunjang) in a white robe and a black horsehair jeongjagwan hat, holding a thin rod beside a low desk with thread-bound books in a village schoolhouse (seodang)"
+    },
+    "gwangdae": {
+     "name": "광대",
+     "desc": "a cheerful street performer (gwangdae) in colourful hemp clothes and a small hat, balancing on a tightrope with an open folding fan"
+    },
+    "blacksmith": {
+     "name": "대장장이",
+     "desc": "a village blacksmith in rough hemp clothes and a leather apron with a towel around his head, holding a hammer over an anvil beside a glowing forge"
+    },
+    "woodcutter": {
+     "name": "나무꾼",
+     "desc": "a woodcutter in plain hemp clothes carrying a wooden A-frame (jige) piled with firewood, holding an axe on a misty mountain path"
+    },
+    "daebi": {
+     "name": "대비",
+     "desc": "a dignified queen dowager in a dark purple ceremonial robe with gold phoenix patterns and an ornate formal hairstyle with gold and jade pins, seated on a royal chair before a muted folding screen"
+    },
+    "consort": {
+     "name": "후궁",
+     "desc": "a royal consort (bin) in a rose-pink dangui jacket with gold-leaf patterns and a deep red chima, an elaborate formal hairstyle with jewelled pins, seated in a palace chamber"
+    },
+    "gayageum": {
+     "name": "가야금 명인",
+     "desc": "a gayageum virtuoso in an elegant jade-green jeogori and a deep red chima, playing a twelve-string gayageum resting on her lap"
+    },
+    "damo": {
+     "name": "다모",
+     "desc": "a damo (female police investigator) in a dark navy jacket with a red sash and a black head cloth, holding a short sword in its scabbard, sharp and alert"
+    },
+    "poet": {
+     "name": "여류 시인",
+     "desc": "a woman poet in a pale blue jeogori and an indigo chima, writing hangul poetry with a brush on paper at a low desk by a lotus pond"
+    },
+    "mudang": {
+     "name": "만신",
+     "desc": "a powerful shaman (mudang) in a bright red and blue ceremonial robe and a tall ceremonial hat, holding a fan and a cluster of brass bells, colourful ritual flags behind"
+    },
+    "kitchen": {
+     "name": "수라간 나인",
+     "desc": "a royal kitchen court lady in a pale yellow jeogori and a dark blue chima with a neat braided hairstyle, carefully arranging dishes on a royal dining table"
+    },
+    "haenyeo": {
+     "name": "해녀",
+     "desc": "a Jeju diver (haenyeo) in white cotton diving clothes with a net bag and a round orange float (taewak), standing on a black volcanic rocky shore"
+    },
+    "marketwoman": {
+     "name": "장터 아낙",
+     "desc": "a lively market woman in plain hemp clothes and a head scarf, selling fish from a bamboo basket at a busy village market"
+    },
+    "waterjar": {
+     "name": "물동이 처녀",
+     "desc": "a village girl in a faded pink jeogori and a navy chima, carrying a clay water jar on her head beside an old stone well"
+    }
+   }
+  }
+ }
+}
