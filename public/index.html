@@ -55,19 +55,15 @@ h1 span{color:var(--coral)}
 .tab.on{background:#fff;color:var(--ink);box-shadow:0 4px 0 -1px #F1D3BE}
 .tab:focus-visible{outline:3px solid var(--lav)}
 
-/* hair picker */
-.hairbox{margin-top:16px}
-.hairbox h3{font-size:16px;margin:0 0 10px;font-family:"Jua","Noto Sans KR",sans-serif;font-weight:400;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.roll{border:none;background:var(--ink);color:#fff;font:inherit;font-size:13px;font-weight:700;padding:8px 12px;border-radius:999px;cursor:pointer}
-.roll:active{transform:translateY(1px)}
-.hairs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-@media (max-width:440px){.hairs{grid-template-columns:repeat(3,1fr)}}
-.hair{border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 4px;font:inherit;font-size:13.5px;font-weight:700;color:var(--ink);cursor:pointer;transition:.12s}
-.hair.on{border-color:var(--coral);background:#FFF1EA;box-shadow:0 4px 0 -1px #FFD3C2}
-.hair.flash{border-color:var(--sun);background:#FFF7DD}
-.hair:focus-visible{outline:3px solid var(--lav)}
-.picked{font-size:13px;color:var(--muted);margin:10px 0 0;text-align:center}
-.picked b{color:var(--coral-d)}
+/* hair roulette slot */
+.hairbox{margin-top:4px;margin-bottom:16px}
+.slot{display:grid;justify-items:center;gap:4px;padding:18px 12px;border-radius:18px;background:var(--ink);color:#fff;box-shadow:0 8px 0 -2px #4A3F66}
+.slot-label{font-size:13px;opacity:.75;font-weight:700}
+.slot-name{font-family:"Jua","Noto Sans KR",sans-serif;font-size:32px;line-height:1.2;min-height:1.2em}
+.slot-name.spin{color:var(--sun)}
+.slot-name.done{color:#fff;animation:pop .35s ease-out}
+@keyframes pop{0%{transform:scale(.8)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+.picked{font-size:12.5px;color:var(--muted);margin:10px 0 0;text-align:center;line-height:1.6}
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 18px;border-radius:16px;border:none;font:inherit;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;color:var(--ink);background:#F4EEF8;transition:.15s;box-shadow:0 5px 0 -1px #DDD3EA}
@@ -144,20 +140,11 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
     </label>
 
     <div id="hairBox" class="hairbox" hidden>
-      <h3>💇 원하는 머리 고르기 <button id="rollBtn" class="roll" type="button">🎲 랜덤 룰렛</button></h3>
-      <div class="hairs" id="hairs">
-        <button class="hair" data-k="dandy">댄디컷</button>
-        <button class="hair" data-k="twoblock">투블럭</button>
-        <button class="hair" data-k="gareuma">가르마펌</button>
-        <button class="hair" data-k="ash">애즈펌</button>
-        <button class="hair" data-k="leaf">리프컷</button>
-        <button class="hair" data-k="shadow">쉐도우펌</button>
-        <button class="hair" data-k="slick">슬릭백</button>
-        <button class="hair" data-k="crop">크롭컷</button>
-        <button class="hair" data-k="hippie">히피펌</button>
-        <button class="hair" data-k="buzz">반삭</button>
+      <div class="slot" aria-live="polite">
+        <span class="slot-label">오늘의 헤어는?</span>
+        <span id="slotName" class="slot-name">🎲 ???</span>
       </div>
-      <p class="picked" id="picked">아직 안 골랐어요. 고르기 어려우면 룰렛을 돌려보세요!</p>
+      <p class="picked">댄디컷 · 투블럭 · 가르마펌 · 애즈펌 · 리프컷 · 쉐도우펌 · 슬릭백 · 크롭컷 · 히피펌 · 반삭 중 하나가 랜덤으로 나와요</p>
     </div>
 
     <button id="go" class="btn primary big" disabled>✨ 3D 애니메이션으로 변신!</button>
@@ -183,7 +170,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
       <button id="shareBtn" class="btn mint">📤 공유하기</button>
     </div>
     <button id="retry" class="btn" style="width:100%;margin-top:10px">🔁 같은 사진으로 다시</button>
-    <button id="otherHair" class="btn mint" style="width:100%;margin-top:10px" hidden>🎲 다른 머리도 해보기</button>
+    <button id="otherHair" class="btn mint" style="width:100%;margin-top:10px" hidden>🎲 다른 랜덤 머리 해보기</button>
     <button id="again" class="btn ghost">다른 사진으로 시작</button>
   </section>
 
@@ -206,7 +193,8 @@ const $ = (s) => document.querySelector(s);
 
 let file = null, resultBlob = null, resultUrl = null;
 let mode = "anim", hairKey = null;
-const HAIR_NAMES = {}; document.querySelectorAll(".hair").forEach(b => HAIR_NAMES[b.dataset.k] = b.textContent);
+const HAIR_NAMES = { dandy:"댄디컷", twoblock:"투블럭", gareuma:"가르마펌", ash:"애즈펌", leaf:"리프컷", shadow:"쉐도우펌", slick:"슬릭백", crop:"크롭컷", hippie:"히피펌", buzz:"반삭" };
+const HAIR_KEYS = Object.keys(HAIR_NAMES);
 
 /* ---- 모드 탭 ---- */
 function setMode(m){
@@ -218,8 +206,8 @@ function setMode(m){
 }
 function updateGo(){
   if (mode === "hair") {
-    $("#go").textContent = hairKey ? `💇 ${HAIR_NAMES[hairKey]}(으)로 바꾸기!` : "💇 헤어스타일 바꾸기!";
-    $("#go").disabled = !file || !hairKey;
+    $("#go").textContent = "🎲 랜덤 헤어로 바꾸기!";
+    $("#go").disabled = !file;
   } else {
     $("#go").textContent = "✨ 3D 애니메이션으로 변신!";
     $("#go").disabled = !file;
@@ -227,33 +215,27 @@ function updateGo(){
 }
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => setMode(t.dataset.mode)));
 
-/* ---- 헤어 선택 / 룰렛 ---- */
-function pickHair(k){
-  hairKey = k;
-  document.querySelectorAll(".hair").forEach(b => b.classList.toggle("on", b.dataset.k === k));
-  $("#picked").innerHTML = `선택: <b>${HAIR_NAMES[k]}</b>`;
-  updateGo();
-}
-$("#hairs").addEventListener("click", ev => { const b = ev.target.closest(".hair"); if (b) pickHair(b.dataset.k); });
+/* ---- 헤어 랜덤 룰렛 ---- */
 let rolling = false;
 function roulette(exclude){
   if (rolling) return Promise.resolve(hairKey);
   rolling = true;
-  const btns = [...document.querySelectorAll(".hair")];
-  const pool = btns.filter(b => b.dataset.k !== exclude);
+  const pool = HAIR_KEYS.filter(k => k !== exclude);
   const target = pool[Math.floor(Math.random() * pool.length)];
-  const steps = btns.length + btns.indexOf(target);
-  let i = 0, delay = 40;
+  const el = $("#slotName"); el.classList.remove("done"); el.classList.add("spin");
+  const steps = 14 + Math.floor(Math.random() * 6);
+  let i = Math.floor(Math.random() * HAIR_KEYS.length), n = 0, delay = 45;
   return new Promise(done => {
     (function tick(){
-      btns.forEach(b => b.classList.remove("flash", "on"));
-      const b = btns[i % btns.length]; b.classList.add("flash");
-      if (i >= steps && b === target) { b.classList.remove("flash"); rolling = false; pickHair(b.dataset.k); return done(b.dataset.k); }
-      i++; delay = Math.min(delay * 1.08, 150); setTimeout(tick, delay);
+      if (n >= steps) {
+        el.textContent = HAIR_NAMES[target]; el.classList.remove("spin"); void el.offsetWidth; el.classList.add("done");
+        hairKey = target; rolling = false; return setTimeout(() => done(target), 550);
+      }
+      el.textContent = HAIR_NAMES[HAIR_KEYS[i++ % HAIR_KEYS.length]];
+      n++; delay = Math.min(delay * 1.1, 150); setTimeout(tick, delay);
     })();
   });
 }
-$("#rollBtn").addEventListener("click", () => roulette());
 
 /* ---- helpers ---- */
 function toast(m){ const t = document.createElement("div"); t.className = "toast"; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
@@ -332,9 +314,12 @@ loadStatus();
   if (/KAKAOTALK/i.test(ua)) { $("#inapp").hidden = false; $("#inappOpen").href = "kakaotalk://web/openExternal?url=" + encodeURIComponent(location.href); }
   else if (/Instagram|FBAN|FBAV|Line\//i.test(ua)) { $("#inapp").hidden = false; $("#inappOpen").href = location.href; $("#inappOpen").target = "_blank"; }
 })();
-$("#go").addEventListener("click", convert);
+$("#go").addEventListener("click", async () => {
+  if (mode === "hair") { $("#go").disabled = true; await roulette(); }
+  convert();
+});
 $("#retry").addEventListener("click", convert);
-$("#otherHair").addEventListener("click", async () => { show("stepUpload"); window.scrollTo({top:0,behavior:"smooth"}); await roulette(hairKey); setTimeout(convert, 500); });
+$("#otherHair").addEventListener("click", async () => { show("stepUpload"); window.scrollTo({top:0,behavior:"smooth"}); $("#go").disabled = true; await roulette(hairKey); convert(); });
 
 /* ---- share / reset ---- */
 function openSheet(){ $("#sheetImg").src = $("#afterImg").src; $("#sheetDownload").href = resultUrl; $("#sheet").hidden = false; }
