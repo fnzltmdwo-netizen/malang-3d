@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>말랑 도화서</title>
+<meta name="description" content="사진 한 장을 조선시대 초상화로 그려주는 말랑 도화서">
+<meta name="theme-color" content="#F2E8D2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=Gowun+Batang:wght@400;700&display=swap">
+<style>
+:root{
+  --hanji:#F2E8D2; --paper:#FBF6EA; --paper2:#F4EAD4; --ink:#1F1A15; --ink2:#5E5244; --rule:#D3C19C; --rule2:#A88F66;
+  --seal:#B23A2E; --seal-d:#7E2219; --cheong:#2F6B5E; --cheong-d:#1F4A40; --gold:#B8862E;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{word-break:keep-all;overflow-wrap:break-word;font-family:"Gowun Batang","Nanum Myeongjo","Batang",serif;color:var(--ink);line-height:1.65;min-height:100vh;background-color:var(--hanji);
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .42  0 0 0 0 .33  0 0 0 0 .2  0 0 0 .09 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+    radial-gradient(ellipse at 50% -10%,rgba(255,250,236,.9),transparent 60%);}
+.wrap{max-width:540px;margin:0 auto;padding:30px 16px 64px}
+h1,h2,h3,.disp{font-family:"Song Myung","Gowun Batang",serif;font-weight:400;letter-spacing:.01em;text-wrap:balance}
+
+/* 머리말 */
+.hero{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--rule)}
+.eyebrow{font-size:12.5px;letter-spacing:.28em;color:var(--ink2);margin:0 0 4px}
+.hero h1{font-size:46px;line-height:1.05;margin:0}
+.sub{margin:10px 0 0;color:var(--ink2);font-size:15px}
+.logo-seal{width:68px;height:68px;background:var(--seal);color:#FFF4E6;display:grid;place-items:center;border-radius:6px;font-family:"Song Myung",serif;font-size:42px;line-height:1;
+  box-shadow:inset 0 0 0 4px var(--seal),inset 0 0 0 6px rgba(255,240,226,.75);transform:rotate(-4deg)}
+
+/* 종이 판 */
+.card{background:var(--paper);border:1px solid var(--rule);border-radius:3px;padding:22px 20px;margin-bottom:16px;
+  box-shadow:inset 0 0 0 5px var(--paper),inset 0 0 0 6px #E4D5B5,0 14px 30px -22px rgba(60,40,15,.55)}
+.card h2{font-size:24px;margin:0 0 14px}
+.step{display:grid;gap:10px;margin-bottom:22px}
+.step h3{font-size:19px;margin:0;display:flex;align-items:center;gap:10px}
+.num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:3px;background:var(--ink);color:var(--paper);font-size:15px;flex:none}
+.step h3 .roll{margin-left:auto}
+
+/* 사진 */
+.drop{display:grid;place-items:center;position:relative;min-height:220px;border-radius:3px;background:var(--paper2);border:1.5px dashed var(--rule2);cursor:pointer;overflow:hidden;text-align:center;transition:.2s}
+.drop:hover,.drop.over{border-color:var(--seal);background:#F1E2C6}
+.drop .empty{padding:20px;display:grid;gap:4px;justify-items:center}
+.drop .brush{width:58px;height:58px;border:2px solid var(--ink);border-radius:50%;display:grid;place-items:center;font-family:"Song Myung",serif;font-size:28px;margin-bottom:6px}
+.drop b{font-family:"Song Myung",serif;font-weight:400;font-size:20px}
+.drop small{color:var(--ink2);font-size:13px}
+.drop img{width:100%;max-height:380px;object-fit:contain;display:block;background:var(--paper2)}
+.drop .change{position:absolute;right:10px;bottom:10px;background:var(--paper);border:1px solid var(--rule2);border-radius:3px;padding:5px 12px;font-size:13px;font-weight:700}
+
+/* 성별 */
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1.5px solid var(--ink);border-radius:3px;overflow:hidden}
+.seg button{border:none;background:transparent;font:inherit;font-size:15px;font-weight:700;color:var(--ink);padding:10px;cursor:pointer}
+.seg button+button{border-left:1.5px solid var(--ink)}
+.seg button.on{background:var(--ink);color:var(--paper)}
+
+/* 신분 패 */
+.roles{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.role{border:1px solid var(--rule2);background:#FFFBF1;border-radius:3px;padding:10px 2px 8px;font:inherit;color:var(--ink);cursor:pointer;display:grid;gap:3px;justify-items:center;transition:.12s;min-width:0}
+.role .ic{font-size:23px;line-height:1}
+.role .nm{font-family:"Song Myung",serif;font-size:15px;white-space:nowrap}
+.role .st{font-size:9px;letter-spacing:-.5px;color:var(--gold)}
+.role.on{border:2px solid var(--seal);background:#FBE9E0;transform:translateY(-2px);box-shadow:0 4px 0 -1px #E9B9A9}
+.role.flash{border-color:var(--gold);background:#FFF2CF}
+.picked{font-size:13px;color:var(--ink2);margin:0;text-align:center}
+.picked b{color:var(--seal);font-weight:700}
+.roll{border:none;background:var(--seal);color:#FFF4E6;font:inherit;font-size:13.5px;font-weight:700;padding:7px 13px;border-radius:3px;cursor:pointer;box-shadow:0 3px 0 var(--seal-d)}
+.roll:active{transform:translateY(2px);box-shadow:0 1px 0 var(--seal-d)}
+
+/* 이름 */
+.namein{width:100%;padding:12px 14px;border-radius:3px;border:1.5px solid var(--rule2);font:inherit;font-size:16px;background:#FFFBF1;color:var(--ink)}
+.namein:focus{outline:none;border-color:var(--seal);box-shadow:0 0 0 3px rgba(178,58,46,.15)}
+.hint{font-size:12.5px;color:var(--ink2);margin:0}
+
+/* 단추 */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;border-radius:3px;border:1.5px solid var(--ink);background:transparent;font:inherit;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;text-decoration:none;transition:.12s}
+.btn:hover{background:rgba(31,26,21,.05)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.primary{background:var(--seal);border-color:var(--seal);color:#FFF4E6;box-shadow:0 4px 0 var(--seal-d)}
+.btn.primary:active{transform:translateY(3px);box-shadow:0 1px 0 var(--seal-d)}
+.btn.mint{background:var(--cheong);border-color:var(--cheong);color:#F3EEDF;box-shadow:0 4px 0 var(--cheong-d)}
+.btn.mint:active{transform:translateY(3px);box-shadow:0 1px 0 var(--cheong-d)}
+.btn.big{width:100%;font-family:"Song Myung",serif;font-weight:400;font-size:21px;padding:15px}
+.btn.ghost{border-color:transparent;color:var(--ink2);width:100%;margin-top:4px}
+.btn:focus-visible,.role:focus-visible,.seg button:focus-visible,.roll:focus-visible,.tab:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.note{font-size:12.5px;color:var(--ink2);text-align:center;margin:12px 0 0;line-height:1.6}
+
+/* 신분 발표 (호패) */
+.odds{display:flex;flex-wrap:wrap;gap:4px 10px;justify-content:center;font-size:12px;color:var(--ink2)}
+.odds span{color:var(--gold);letter-spacing:-.5px}
+.reveal{text-align:center;padding:30px 20px 34px}
+.reveal-who{font-family:"Song Myung",serif;font-size:21px;margin:0 0 18px}
+.reveal-who b{font-weight:400;color:var(--seal)}
+.hopae{position:relative;width:190px;margin:34px auto 0;padding:44px 16px 26px;border-radius:60px 60px 10px 10px;
+  background:linear-gradient(90deg,#B98A55,#D3A86F 30%,#C69560 55%,#D7AE77 80%,#B48450);
+  box-shadow:inset 0 0 0 3px rgba(90,55,25,.35),inset 0 0 18px rgba(90,55,25,.35),0 18px 24px -14px rgba(60,35,10,.7);display:grid;gap:6px;justify-items:center}
+.hopae::before{content:"";position:absolute;top:14px;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#3A2414;box-shadow:inset 0 2px 3px rgba(0,0,0,.6)}
+.hopae::after{content:"";position:absolute;top:-34px;left:50%;width:2px;height:55px;margin-left:-1px;background:#8E2A22}
+.hopae .ic{font-size:34px;line-height:1;min-height:34px}
+.hopae .rn{font-family:"Song Myung",serif;font-size:36px;line-height:1.15;color:#2A180C;min-height:42px;white-space:nowrap}
+.hopae .st{font-size:15px;color:#7A4A10;letter-spacing:2px;min-height:20px}
+.hopae.spin .rn{color:#5A3A1E}
+.hopae.done{animation:stamp .45s ease-out}
+.hopae.tier5{box-shadow:inset 0 0 0 3px rgba(90,55,25,.35),inset 0 0 18px rgba(90,55,25,.35),0 0 0 4px #E8C35A,0 0 40px 8px rgba(232,195,90,.6)}
+.hopae.tier6{background:linear-gradient(90deg,#B98A55,#D3A86F 30%,#C69560 55%,#D7AE77 80%,#B48450);animation:stamp .45s ease-out,legend 2.4s linear .45s infinite}
+@keyframes legend{0%{box-shadow:0 0 0 4px #ff6b6b,0 0 46px 10px rgba(255,107,107,.55)}20%{box-shadow:0 0 0 4px #ffd166,0 0 46px 10px rgba(255,209,102,.55)}40%{box-shadow:0 0 0 4px #6bdc8b,0 0 46px 10px rgba(107,220,139,.55)}60%{box-shadow:0 0 0 4px #5aa9ff,0 0 46px 10px rgba(90,169,255,.55)}80%{box-shadow:0 0 0 4px #b48cff,0 0 46px 10px rgba(180,140,255,.55)}100%{box-shadow:0 0 0 4px #ff6b6b,0 0 46px 10px rgba(255,107,107,.55)}}
+.hopae.tier6 .st{color:#8E2A22;letter-spacing:1px;font-weight:700}
+.odds .leg{background:linear-gradient(90deg,#d9534f,#e0a100,#3c9d5d,#3b7dd8,#8a5cd6);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700}
+@keyframes stamp{0%{transform:scale(.86) rotate(-3deg)}60%{transform:scale(1.07) rotate(1deg)}100%{transform:scale(1) rotate(0)}}
+.reveal-line{font-size:16px;margin:20px 0 0;min-height:1.6em}
+.result-line{margin:-6px 0 14px;color:var(--ink2);font-size:15px}
+.result-line b{color:var(--seal)}
+@media (prefers-reduced-motion:reduce){.hopae.done,.hopae.tier6{animation:none}}
+
+/* 숨긴 기능용 기본 모양 */
+.tabs{display:flex;gap:6px;margin-bottom:16px}.tab{flex:1;border:1px solid var(--rule2);background:transparent;font:inherit;padding:8px;border-radius:3px;cursor:pointer}.tab.on{background:var(--ink);color:var(--paper)}
+.animebox,.hairbox{margin-bottom:16px}.astyles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.astyle{border:1px solid var(--rule2);background:#FFFBF1;border-radius:3px;padding:8px 4px;font:inherit;cursor:pointer;display:grid;justify-items:center}.astyle.on{border-color:var(--seal)}.astyle.flash{background:#FFF2CF}
+.slot{display:grid;justify-items:center;padding:14px;background:var(--ink);color:var(--paper);border-radius:3px}.slot-name{font-family:"Song Myung",serif;font-size:28px}
+
+/* 그리는 중 */
+.loading{text-align:center;padding:36px 20px}
+.enso{width:96px;height:96px;margin:0 auto 14px;display:block}
+.enso path{fill:none;stroke:var(--ink);stroke-width:9;stroke-linecap:round;stroke-dasharray:300;stroke-dashoffset:300;animation:enso 2.4s ease-in-out infinite}
+@keyframes enso{0%{stroke-dashoffset:300;opacity:1}60%{stroke-dashoffset:0;opacity:1}85%{stroke-dashoffset:0;opacity:0}100%{stroke-dashoffset:300;opacity:0}}
+.lmsg{font-family:"Song Myung",serif;font-size:22px;margin:0}
+.bar{height:3px;background:var(--rule);margin:16px auto 8px;max-width:240px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ink);transition:width .8s linear}
+@media (prefers-reduced-motion:reduce){.enso path{animation:none;stroke-dashoffset:0}}
+
+/* 완성: 족자 */
+.compare{display:grid;grid-template-columns:1fr 92px;gap:14px;align-items:end}
+.compare figure{margin:0}
+.compare figcaption{text-align:center;font-size:13px;color:var(--ink2);margin-top:8px}
+.compare .before img{width:100%;aspect-ratio:3/4;object-fit:cover;border:1px solid var(--rule2);border-radius:2px;display:block}
+.scroll{position:relative;background:var(--cheong);padding:14px 12px 20px;margin:10px 6px;box-shadow:0 18px 26px -18px rgba(40,25,10,.7)}
+.scroll::before,.scroll::after{content:"";position:absolute;left:-8px;right:-8px;height:11px;border-radius:6px;background:linear-gradient(#5A3B22,#2E1D10)}
+.scroll::before{top:-6px}.scroll::after{bottom:-7px}
+.scroll img{width:100%;display:block;border:2px solid #C9A964;background:var(--paper2);aspect-ratio:2/3;object-fit:cover}
+.compare:not(.tall) .scroll img{aspect-ratio:1}
+#afterCap{font-family:"Song Myung",serif;font-size:19px;color:var(--ink)}
+.rarity{display:block;color:var(--gold);font-size:12px;letter-spacing:2px;font-family:"Gowun Batang",serif}
+
+/* 알림 */
+.err{background:#FBE9E0;border:1.5px solid var(--seal);color:#6E1F17;padding:12px 14px;border-radius:3px;font-size:14px;margin:0 0 14px;line-height:1.6}
+.inapp{background:#FFF4DA;border:1.5px solid var(--gold);color:#5A4012;padding:12px 14px;border-radius:3px;font-size:13.5px;line-height:1.6;margin-bottom:14px}
+.inapp a{display:inline-block;margin-top:8px;padding:8px 14px;border-radius:3px;background:var(--ink);color:var(--paper);font-weight:700;text-decoration:none}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:3px;font-size:14px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.3);animation:fade 2.6s forwards;z-index:30;white-space:nowrap}
+@keyframes fade{0%,78%{opacity:1}100%{opacity:0}}
+.sheet{position:fixed;inset:0;background:rgba(31,26,21,.82);display:grid;place-items:center;padding:20px;z-index:20}
+.sheet-box{background:var(--paper);border-radius:3px;padding:18px;max-width:400px;width:100%;text-align:center;box-shadow:inset 0 0 0 5px var(--paper),inset 0 0 0 6px var(--rule)}
+.sheet-box img{width:100%;display:block;border:1px solid var(--rule2)}
+.sheet-box p{margin:12px 0 0;font-size:14px;line-height:1.6}
+footer{text-align:center;color:var(--ink2);font-size:12px;margin-top:28px;line-height:1.7}
+@media (max-width:380px){.hero h1{font-size:40px}.logo-seal{width:58px;height:58px;font-size:36px}.role .nm{font-size:13.5px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">朝鮮 肖像 · 조선 초상화방</p>
+      <h1>말랑 도화서</h1>
+      <p class="sub" id="heroSub">그대의 얼굴을 도화서 화원이 비단 위에 그려드리옵니다.</p>
+    </div>
+    <div class="logo-seal" aria-hidden="true">畫</div>
+  </header>
+
+  <p id="error" class="err" hidden></p>
+  <div id="inapp" class="inapp" hidden>카톡 안에서 열렸어요. 여기서는 그림 저장이 안 될 수 있어요.<br><a id="inappOpen" href="#">크롬/사파리로 열기</a></div>
+
+  <section id="stepUpload" class="card">
+    <div class="tabs" id="tabs" role="tablist">
+      <button class="tab" data-mode="joseon" role="tab">조선 초상화</button>
+      <button class="tab" data-mode="anime" role="tab">애니 주인공</button>
+      <button class="tab" data-mode="anim" role="tab">3D 애니메이션</button>
+      <button class="tab" data-mode="hair" role="tab">헤어 변경</button>
+    </div>
+
+    <div class="step">
+      <h3><span class="num">壹</span>얼굴 보여주기</h3>
+      <label id="drop" class="drop" for="file">
+        <input id="file" type="file" accept="image/*" hidden>
+        <div id="dropEmpty" class="empty">
+          <div class="brush" aria-hidden="true">顔</div>
+          <b>사진을 고르시오</b>
+          <small>정면에서 얼굴이 크고 밝게 나온 사진일수록 똑같이 그려집니다</small>
+        </div>
+        <img id="preview" alt="" hidden>
+        <span id="changeTag" class="change" hidden>사진 바꾸기</span>
+      </label>
+    </div>
+
+    <div id="joseonBox" hidden>
+      <div class="step">
+        <h3><span class="num">貳</span>이름 쓰기</h3>
+        <input id="jname" class="namein" type="text" maxlength="6" placeholder="예: 승재" autocomplete="off">
+        <p class="hint">이름은 그림 위 세로 글씨와 붉은 낙관 도장에 들어가요.</p>
+      </div>
+      <div class="step">
+        <h3><span class="num">參</span>신분 뽑기</h3>
+        <p class="picked" id="poolText">임금·도깨비부터 투전꾼·나무꾼까지, 80가지 신분 중 하나가 걸려요.</p>
+        <div class="odds"><span class="leg">✦전설</span>1% <span>★★★★★</span>4% <span>★★★★</span>10% <span>★★★</span>22% <span>★★</span>28% <span>★</span>35%</div>
+      </div>
+    </div>
+
+    <div id="animeBox" class="animebox" hidden>
+      <h3>그림체 고르기 <button id="animeRoll" class="roll" type="button">🎲 랜덤</button></h3>
+      <div class="astyles" id="astyles">
+        <button class="astyle" data-k="retro"><span class="ic">📼</span><span class="nm">90년대 셀애니</span></button>
+        <button class="astyle" data-k="theater"><span class="ic">🌻</span><span class="nm">극장판 감성</span></button>
+        <button class="astyle" data-k="sky"><span class="ic">🌅</span><span class="nm">하늘 로맨스</span></button>
+        <button class="astyle" data-k="shonen"><span class="ic">🔥</span><span class="nm">소년만화 주인공</span></button>
+        <button class="astyle" data-k="shojo"><span class="ic">🌸</span><span class="nm">순정만화</span></button>
+        <button class="astyle" data-k="chibi"><span class="ic">🍡</span><span class="nm">SD 귀요미</span></button>
+        <button class="astyle" data-k="webtoon"><span class="ic">📱</span><span class="nm">웹툰 주인공</span></button>
+        <button class="astyle" data-k="idol"><span class="ic">🎤</span><span class="nm">아이돌 애니</span></button>
+      </div>
+      <p class="picked" id="animePicked">안 고르면 랜덤으로 골라드려요</p>
+    </div>
+
+    <div id="hairBox" class="hairbox" hidden>
+      <div class="slot" aria-live="polite"><span class="slot-label">오늘의 헤어는?</span><span id="slotName" class="slot-name">???</span></div>
+    </div>
+
+    <button id="go" class="btn primary big" disabled>초상화 청하기</button>
+    <p class="note"><span id="left"></span><br>사진은 그림 그리는 데만 쓰이고 저장되지 않습니다.</p>
+  </section>
+
+  <section id="stepReveal" class="card reveal" hidden aria-live="polite">
+    <p class="reveal-who"><b id="revealName"></b>님의 조선시대 신분은…</p>
+    <div class="hopae" id="hopae"><span class="ic" id="revealIc">❔</span><span class="rn" id="revealRole">???</span><span class="st" id="revealStars"></span></div>
+    <p class="reveal-line" id="revealLine"></p>
+  </section>
+
+  <section id="stepLoading" class="card loading" hidden>
+    <svg class="enso" viewBox="0 0 100 100" aria-hidden="true"><path d="M52 12 C 24 10, 10 34, 14 56 C 18 80, 44 92, 66 84 C 86 76, 92 50, 82 32 C 76 22, 66 16, 58 15"/></svg>
+    <p id="lmsg" class="lmsg">비단 펴는 중…</p>
+    <div class="bar"><i id="barFill"></i></div>
+    <p class="note">화원이 그리는 데 30초~1분 걸립니다. 창을 닫지 마세요.</p>
+  </section>
+
+  <section id="stepResult" class="card" hidden>
+    <h2>초상화가 완성되었사옵니다</h2>
+    <p class="result-line" id="resultLine"></p>
+    <div class="compare">
+      <figure class="after"><div class="scroll"><img id="afterImg" alt="완성된 초상화"></div><figcaption id="afterCap"></figcaption></figure>
+      <figure class="before"><img id="beforeImg" alt="원본 사진"><figcaption>원본</figcaption></figure>
+    </div>
+    <p class="note">저장이 안 되면 그림을 <b>길게 눌러</b> "이미지 저장"을 고르세요.</p>
+    <div class="row">
+      <a id="downloadBtn" class="btn primary" download="joseon.png">그림 저장하기</a>
+      <button id="shareBtn" class="btn mint">공유하기</button>
+    </div>
+    <button id="otherBtn" class="btn mint" style="width:100%;margin-top:12px" hidden>🎲 신분 다시 뽑기</button>
+    <button id="retry" class="btn" style="width:100%;margin-top:12px">같은 신분으로 다시 그리기</button>
+    <button id="again" class="btn ghost">다른 얼굴로 처음부터</button>
+  </section>
+
+  <footer>도화서 화원은 OpenAI 이미지 AI입니다<br>재미로 보는 그림이라 실제 역사 고증과는 다를 수 있어요</footer>
+
+  <div id="sheet" class="sheet" hidden>
+    <div class="sheet-box">
+      <img id="sheetImg" alt="완성된 초상화">
+      <p><b>그림을 길게 누르거나(폰) 우클릭해서(PC)</b><br>"이미지 저장"을 고르면 저장돼요.<br>저장한 그림을 카톡에 올려 자랑하세요.</p>
+      <div class="row">
+        <a id="sheetDownload" class="btn primary" download="joseon.png">바로 저장</a>
+        <button id="sheetClose" class="btn">닫기</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+
+let file = null, resultBlob = null, resultUrl = null;
+/* ===== 기능 스위치: 보여줄 기능만 넣기 ("anime", "anim", "hair") ===== */
+const MODES = ["joseon"];
+let mode = MODES[0], hairKey = null, animeKey = null, joseonKey = null, gender = "m";
+// [키, 아이콘, 이름, 등급(6=전설), 초상화 제목]
+const ROLES = {
+  m: [
+    ["dokkaebi","👹","도깨비",6, n => `도깨비 ${n} 진영`], ["jeoseung","🖤","저승사자",6, n => `저승사자 ${n} 진영`], ["sansin","🏔️","산신령",6, n => `산신령 ${n} 진영`],
+    ["king","👑","임금",5, n => `주상전하 ${n} 어진`], ["crownprince","🐉","세자",5, n => `세자저하 ${n} 진영`],
+    ["minister","📜","영의정",4, n => `영의정 ${n} 공 진영`], ["inspector","🐎","암행어사",4, n => `암행어사 ${n} 출두요`], ["grandprince","🏯","대군",4, n => `대군 ${n} 진영`], ["doseungji","📨","도승지",4, n => `도승지 ${n} 공 진영`],
+    ["general","⚔️","대장군",3, n => `대장군 ${n} 진영`], ["gwageo","🌺","장원급제",3, n => `장원급제 ${n} 진영`],
+    ["physician","🌿","어의",3, n => `어의 ${n} 공 진영`], ["painter","🖌️","도화서 화원",3, n => `도화서 화원 ${n} 자화상`],
+    ["policechief","🛡️","포도대장",3, n => `포도대장 ${n} 진영`], ["archer","🏹","신궁",3, n => `신궁 ${n} 진영`], ["satto","⚖️","사또",3, n => `사또 ${n} 진영`],
+    ["monk","📿","큰스님",3, n => `큰스님 ${n} 진영`], ["horseman","🐴","기마무사",3, n => `기마무사 ${n} 진영`],
+    ["seonbi","🪭","선비",2, n => `처사 ${n} 선생 초상`], ["translator","📚","역관",2, n => `역관 ${n} 초상`], ["merchant","🎒","보부상",2, n => `보부상 ${n} 초상`],
+    ["pansori","🥁","명창",2, n => `명창 ${n} 초상`], ["geomancer","🧭","지관",2, n => `지관 ${n} 초상`], ["hunjang","📖","훈장",2, n => `훈장 ${n} 선생 초상`],
+    ["falconer","🦅","매사냥꾼",2, n => `매사냥꾼 ${n} 초상`], ["bowmaker","🪵","궁장",2, n => `궁장 ${n} 초상`], ["potter","⚱️","도공",2, n => `도공 ${n} 초상`],
+    ["chef","🍚","숙수",2, n => `숙수 ${n} 초상`], ["hunter","🐅","포수",2, n => `포수 ${n} 초상`],
+    ["pojol","🏮","포졸",1, n => `포도청 포졸 ${n} 초상`], ["farmhand","🌾","머슴",1, n => `머슴 ${n} 초상`],
+    ["yeot","✂️","엿장수",1, n => `엿장수 ${n} 초상`], ["boatman","🛶","뱃사공",1, n => `뱃사공 ${n} 초상`],
+    ["gwangdae","🎭","광대",1, n => `광대 ${n} 초상`], ["blacksmith","🔨","대장장이",1, n => `대장장이 ${n} 초상`], ["woodcutter","🪓","나무꾼",1, n => `나무꾼 ${n} 초상`],
+    ["talchum","👺","탈춤꾼",1, n => `탈춤꾼 ${n} 초상`], ["ssireum","🐂","씨름 장사",1, n => `씨름 장사 ${n} 초상`], ["gamakkun","🪑","가마꾼",1, n => `가마꾼 ${n} 초상`],
+    ["muljangsu","💧","물장수",1, n => `물장수 ${n} 초상`], ["jipsin","👡","짚신장수",1, n => `짚신장수 ${n} 초상`],
+
+    ["gumiho","🦊","구미호",6, n => `구미호 ${n} 진영`], ["seonnyeo","☁️","선녀",6, n => `선녀 ${n} 진영`], ["yongnyeo","🌊","용녀",6, n => `용궁 공주 ${n} 진영`],
+    ["queen","👑","왕비",5, n => `중전마마 ${n} 진영`], ["princess","💎","공주",5, n => `공주마마 ${n} 진영`], ["daebi","🏯","대비",5, n => `대비마마 ${n} 진영`],
+    ["lady","📜","정경부인",4, n => `정경부인 ${n} 진영`], ["royaldoctor","🌿","의녀",4, n => `내의원 의녀 ${n} 진영`], ["consort","🌺","후궁",4, n => `후궁 ${n} 진영`], ["ongju","🎀","옹주",4, n => `옹주마마 ${n} 진영`],
+    ["warrior","⚔️","여협객",3, n => `여협객 ${n} 진영`], ["sanggung","🍱","상궁",3, n => `상궁 ${n} 진영`], ["femalepainter","🖌️","여류 화원",3, n => `여류화원 ${n} 자화상`],
+    ["gayageum","🎶","가야금 명인",3, n => `가야금 명인 ${n} 초상`], ["damo","🗡️","다모",3, n => `포도청 다모 ${n} 진영`], ["poet","✒️","여류 시인",3, n => `여류시인 ${n} 초상`],
+    ["sworddancer","💃","검무 명인",3, n => `검무 명인 ${n} 초상`], ["haegeum","🎻","해금 악사",3, n => `해금 악사 ${n} 초상`], ["femalearcher","🎯","여궁사",3, n => `여궁사 ${n} 진영`],
+    ["maiden","🌸","규수",2, n => `규수 ${n} 초상`], ["gaekju","🧮","객주",2, n => `객주 ${n} 초상`], ["seamstress","🧵","침방 나인",2, n => `침방나인 ${n} 초상`],
+    ["mudang","🔔","만신",2, n => `만신 ${n} 초상`], ["kitchen","🍲","수라간 나인",2, n => `수라간 나인 ${n} 초상`], ["haenyeo","🐚","해녀",2, n => `제주 해녀 ${n} 초상`],
+    ["teamaster","🍵","다인",2, n => `다인 ${n} 초상`], ["weaver","🧶","베 짜는 여인",2, n => `베 짜는 ${n} 초상`], ["swing","🎐","그네 아씨",2, n => `그네 타는 ${n} 초상`], ["apothecary","⚗️","약방 아씨",2, n => `약방 아씨 ${n} 초상`],
+    ["jumo","🍶","주모",1, n => `주막 주모 ${n} 초상`], ["laundry","🧺","빨래터 아낙",1, n => `빨래터 아낙 ${n} 초상`],
+    ["tteok","🍡","떡장수",1, n => `떡장수 ${n} 초상`], ["herb","🌱","나물 처녀",1, n => `나물 캐는 ${n} 초상`],
+    ["marketwoman","🐟","장터 아낙",1, n => `장터 아낙 ${n} 초상`], ["waterjar","🏺","물동이 처녀",1, n => `물동이 처녀 ${n} 초상`],
+    ["bangmul","🪞","방물장수",1, n => `방물장수 ${n} 초상`], ["onggi","🫙","옹기장수",1, n => `옹기장수 ${n} 초상`], ["chamoe","🍈","참외장수",1, n => `참외장수 ${n} 초상`], ["neolttwigi","🎊","널뛰기 소녀",1, n => `널뛰는 ${n} 초상`],
+  ],
+};
+const ROLE_INFO = {}, CAPTION = {};
+Object.values(ROLES).flat().forEach(([k, ic, nm, star, cap]) => { ROLE_INFO[k] = { ic, nm, star }; CAPTION[k] = cap; });
+const FEMALE = new Set(["queen","princess","daebi","lady","royaldoctor","consort","ongju","warrior","sanggung","femalepainter","gayageum","damo","poet","sworddancer","haegeum","femalearcher","maiden","gaekju","seamstress","mudang","kitchen","haenyeo","teamaster","weaver","swing","apothecary","jumo","laundry","tteok","herb","marketwoman","waterjar","bangmul","onggi","chamoe","neolttwigi","gumiho","seonnyeo","yongnyeo"]);
+const TIER_TOTAL = { 6: 1, 5: 4, 4: 10, 3: 22, 2: 28, 1: 35 };   // 등급별 확률(%) — 6 = 전설
+const stars = (n) => n >= 6 ? "✦ 전설 ✦" : "★".repeat(n) + "☆".repeat(5 - n);
+const hasBatchim = (w) => { const c = w.charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c <= 11171 && c % 28 !== 0; };
+const was = (w) => w + (hasBatchim(w) ? "이었" : "였");      // 영의정이었 / 세자였
+const isN = (w) => w + (hasBatchim(w) ? "이" : "");         // 영의정이옵니다 / 세자옵니다
+const SUBS = { joseon: "그대의 얼굴을 도화서 화원이 비단 위에 그려드리옵니다.", anime: "내 사진이 애니 주인공으로! 그림체만 고르면 끝.", anim: "내 사진을 3D 애니메이션 캐릭터로!", hair: "랜덤 헤어스타일 미리보기!" };
+const ANIME_NAMES = {}; document.querySelectorAll(".astyle").forEach(b => ANIME_NAMES[b.dataset.k] = b.querySelector(".nm").textContent);
+const ANIME_KEYS = Object.keys(ANIME_NAMES);
+const HAIR_NAMES = { dandy:"댄디컷", twoblock:"투블럭", gareuma:"가르마펌", ash:"애즈펌", leaf:"리프컷", shadow:"쉐도우펌", slick:"슬릭백", crop:"크롭컷", hippie:"히피펌", buzz:"반삭" };
+const HAIR_KEYS = Object.keys(HAIR_NAMES);
+
+/* ---- 모드 탭 ---- */
+function setMode(m){
+  mode = m;
+  document.querySelectorAll(".tab").forEach(t => { const on = t.dataset.mode === m; t.classList.toggle("on", on); t.setAttribute("aria-selected", on); });
+  $("#hairBox").hidden = m !== "hair";
+  $("#animeBox").hidden = m !== "anime";
+  $("#joseonBox").hidden = m !== "joseon";
+  $("#heroSub").textContent = SUBS[m] || "";
+  updateGo();
+  clearError();
+}
+function updateGo(){
+  if (mode === "joseon") {
+    $("#go").textContent = "신분 뽑고 초상화 청하기";
+    $("#go").disabled = !file || !$("#jname").value.trim();
+  } else if (mode === "anime") {
+    $("#go").textContent = animeKey ? `✨ ${ANIME_NAMES[animeKey]}(으)로 변신!` : "🎲 랜덤 그림체로 변신!";
+    $("#go").disabled = !file;
+  } else if (mode === "hair") {
+    $("#go").textContent = "🎲 랜덤 헤어로 바꾸기!";
+    $("#go").disabled = !file;
+  } else {
+    $("#go").textContent = "✨ 3D 애니메이션으로 변신!";
+    $("#go").disabled = !file;
+  }
+}
+document.querySelectorAll(".tab").forEach(t => { t.hidden = !MODES.includes(t.dataset.mode); t.addEventListener("click", () => setMode(t.dataset.mode)); });
+$("#tabs").hidden = MODES.length < 2;
+
+/* ---- 조선 초상화: 이름 / 성별 / 신분 발표 ---- */
+$("#jname").addEventListener("input", updateGo);
+function updatePool(){
+  const n = ROLES[gender].length;
+  $("#poolText").textContent = `임금·왕비·도깨비부터 주모·나무꾼까지, ${n}가지 신분 중 하나가 걸려요. 사내라도 왕비가 나올 수 있사옵니다 ㅋㅋ`;
+}
+updatePool();
+function weightedRole(exclude){
+  const pool = ROLES[gender].filter(r => r[0] !== exclude);
+  const cnt = {}; ROLES[gender].forEach(r => cnt[r[3]] = (cnt[r[3]] || 0) + 1);
+  const w = (r) => TIER_TOTAL[r[3]] / cnt[r[3]];
+  let t = Math.random() * pool.reduce((s, r) => s + w(r), 0);
+  for (const r of pool) { t -= w(r); if (t <= 0) return r[0]; }
+  return pool[pool.length - 1][0];
+}
+const REVEAL_LINES = {
+  6: (nm) => `🌈 천년에 한 번 나올 신분이옵니다! 전설의 ${isN(nm)}옵니다!`,
+  5: (nm) => `👑 성은이 망극하옵니다! 무려 ${isN(nm)}옵니다!`,
+  4: (nm) => `높으신 분이셨사옵니다. ${nm} 대감!`,
+  3: (nm) => `재주가 남다르셨사옵니다. ${nm}!`,
+  2: (nm) => `소박하지만 귀한 삶, ${was(nm)}사옵니다.`,
+  1: (nm) => `ㅋㅋ 고생 많으셨사옵니다… ${nm}!`,
+};
+function revealRole(exclude){
+  const name = $("#jname").value.trim();
+  const target = weightedRole(exclude);
+  const pool = ROLES[gender];
+  $("#revealName").textContent = name;
+  $("#revealStars").textContent = ""; $("#revealLine").textContent = "";
+  const tag = $("#hopae"); tag.className = "hopae spin";
+  const setName = (t) => { const el = $("#revealRole"); el.textContent = t; const L = t.length; el.style.fontSize = L >= 6 ? "23px" : L === 5 ? "27px" : L === 4 ? "32px" : ""; };
+  show("stepReveal"); window.scrollTo({ top: 0, behavior: "smooth" });
+  const steps = 20 + Math.floor(Math.random() * 5);
+  let n = 0, delay = 50;
+  return new Promise(done => {
+    (function tick(){
+      const r = n >= steps ? pool.find(x => x[0] === target) : pool[Math.floor(Math.random() * pool.length)];
+      if (n >= steps) {
+        $("#revealIc").textContent = r[1]; setName(r[2]);
+        $("#revealStars").textContent = stars(r[3]);
+        tag.className = "hopae done" + (r[3] === 6 ? " tier6" : r[3] === 5 ? " tier5" : "");
+        $("#revealLine").textContent = REVEAL_LINES[r[3]](r[2]) + (FEMALE.has(r[0]) ? " …그런데 사내대장부가?! ㅋㅋ" : "");
+        joseonKey = target;
+        return setTimeout(() => done(target), 2200);
+      }
+      $("#revealIc").textContent = r[1]; setName(r[2]);
+      n++; delay = Math.min(delay * 1.08, 190); setTimeout(tick, delay);
+    })();
+  });
+}
+
+/* ---- 초상화에 제목 글씨 + 낙관 도장 찍기 ---- */
+function loadImg(src){ return new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(im); im.onerror = no; im.src = src; }); }
+async function composeJoseon(src, roleKey, name){
+  const im = await loadImg(src);
+  const W = im.naturalWidth, H = im.naturalHeight;
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const g = c.getContext("2d"); g.drawImage(im, 0, 0, W, H);
+  const fs = Math.round(W * 0.052);
+  const FONT = (s) => `${s}px "Song Myung", "Nanum Myeongjo", "Batang", serif`;
+  try { await document.fonts.load(FONT(fs)); } catch {}
+  const text = (name ? CAPTION[roleKey](name) : CAPTION[roleKey]("").replace(/ (공|선생)(?= )/, "")).replace(/\s+/g, " ").trim();
+  let x = W - fs * 1.7, y = fs * 1.5;
+  g.font = FONT(fs); g.textAlign = "center"; g.textBaseline = "top"; g.fillStyle = "rgba(38,24,14,.86)";
+  for (const ch of text) { if (ch === " ") { y += fs * 0.45; continue; } g.fillText(ch, x, y); y += fs * 1.1; }
+  // 낙관 도장
+  const seal = [...(name || "말랑")].slice(0, 4);
+  const S = fs * 1.55, sx = x - S / 2, sy = y + fs * 0.35;
+  g.fillStyle = "rgba(176,36,30,.9)";
+  g.beginPath(); g.roundRect ? g.roundRect(sx, sy, S, S, S * 0.08) : g.rect(sx, sy, S, S); g.fill();
+  g.strokeStyle = "rgba(255,240,230,.85)"; g.lineWidth = S * 0.04; g.strokeRect(sx + S * 0.09, sy + S * 0.09, S * 0.82, S * 0.82);
+  g.fillStyle = "rgba(255,244,236,.95)"; g.textBaseline = "middle";
+  const cx = sx + S / 2, cy = sy + S / 2;
+  if (seal.length === 1) { g.font = FONT(S * 0.62); g.fillText(seal[0], cx, cy); }
+  else if (seal.length === 2) { g.font = FONT(S * 0.42); g.fillText(seal[0], cx, cy - S * 0.2); g.fillText(seal[1], cx, cy + S * 0.2); }
+  else { // 전통 도장: 오른쪽 세로줄부터 읽기
+    g.font = FONT(S * 0.32); const d = S * 0.19;
+    const pos = [[cx + d, cy - d], [cx + d, cy + d], [cx - d, cy - d], [cx - d, cy + d]];
+    seal.forEach((ch, i) => g.fillText(ch, pos[i][0], pos[i][1]));
+  }
+  return new Promise(ok => c.toBlob(ok, "image/png"));
+}
+
+/* ---- 애니 그림체 선택 / 랜덤 ---- */
+function pickAnime(k){
+  animeKey = k;
+  document.querySelectorAll(".astyle").forEach(b => { b.classList.remove("flash"); b.classList.toggle("on", b.dataset.k === k); });
+  $("#animePicked").innerHTML = k ? `선택: <b>${ANIME_NAMES[k]}</b>` : "안 고르면 랜덤으로 골라드려요";
+  updateGo();
+}
+$("#astyles").addEventListener("click", ev => { const b = ev.target.closest(".astyle"); if (b) pickAnime(b.dataset.k === animeKey ? null : b.dataset.k); });
+let animeRolling = false;
+function animeRoulette(exclude){
+  if (animeRolling) return Promise.resolve(animeKey);
+  animeRolling = true;
+  const btns = [...document.querySelectorAll(".astyle")];
+  const pool = ANIME_KEYS.filter(k => k !== exclude);
+  const target = pool[Math.floor(Math.random() * pool.length)];
+  const steps = 12 + Math.floor(Math.random() * 6);
+  let i = Math.floor(Math.random() * btns.length), n = 0, delay = 45;
+  return new Promise(done => {
+    (function tick(){
+      btns.forEach(b => b.classList.remove("flash", "on"));
+      if (n >= steps && btns[i % btns.length].dataset.k === target) { animeRolling = false; pickAnime(target); return setTimeout(() => done(target), 400); }
+      btns[i++ % btns.length].classList.add("flash");
+      n++; delay = Math.min(delay * 1.1, 150); setTimeout(tick, delay);
+    })();
+  });
+}
+$("#animeRoll").addEventListener("click", () => animeRoulette());
+
+/* ---- 헤어 랜덤 룰렛 ---- */
+let rolling = false;
+function roulette(exclude){
+  if (rolling) return Promise.resolve(hairKey);
+  rolling = true;
+  const pool = HAIR_KEYS.filter(k => k !== exclude);
+  const target = pool[Math.floor(Math.random() * pool.length)];
+  const el = $("#slotName"); el.classList.remove("done"); el.classList.add("spin");
+  const steps = 14 + Math.floor(Math.random() * 6);
+  let i = Math.floor(Math.random() * HAIR_KEYS.length), n = 0, delay = 45;
+  return new Promise(done => {
+    (function tick(){
+      if (n >= steps) {
+        el.textContent = HAIR_NAMES[target]; el.classList.remove("spin"); void el.offsetWidth; el.classList.add("done");
+        hairKey = target; rolling = false; return setTimeout(() => done(target), 550);
+      }
+      el.textContent = HAIR_NAMES[HAIR_KEYS[i++ % HAIR_KEYS.length]];
+      n++; delay = Math.min(delay * 1.1, 150); setTimeout(tick, delay);
+    })();
+  });
+}
+
+/* ---- helpers ---- */
+function toast(m){ const t = document.createElement("div"); t.className = "toast"; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
+function show(step){ ["stepUpload","stepReveal","stepLoading","stepResult"].forEach(id => $("#"+id).hidden = id !== step); }
+function error(m){ $("#error").textContent = "⚠️ " + m; $("#error").hidden = false; show("stepUpload"); window.scrollTo({top:0,behavior:"smooth"}); }
+function clearError(){ $("#error").hidden = true; }
+
+/* ---- file pick ---- */
+const drop = $("#drop"), preview = $("#preview"), dropEmpty = $("#dropEmpty"), fileInput = $("#file");
+function pick(f){
+  if (!f) return;
+  if (!f.type.startsWith("image/")) return error("이미지 파일만 올릴 수 있어요");
+  file = f; clearError();
+  preview.src = URL.createObjectURL(f); preview.hidden = false; dropEmpty.hidden = true; $("#changeTag").hidden = false;
+  updateGo();
+}
+fileInput.addEventListener("change", () => pick(fileInput.files[0]));
+["dragenter","dragover"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", ev => pick(ev.dataTransfer.files[0]));
+document.addEventListener("paste", ev => { const f = [...(ev.clipboardData?.files || [])][0]; if (f) pick(f); });
+
+
+/* ---- 이미지 전처리: 긴 변 1024로 줄이고 PNG로 (HEIC 등 대응 + 업로드 크기 절감) ---- */
+async function toPng(f){
+  const bmp = await createImageBitmap(f).catch(() => null);
+  if (!bmp) throw new Error("이 사진 형식은 브라우저가 읽지 못해요. JPG/PNG로 다시 시도해 주세요.");
+  const max = 1024, r = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas"); c.width = Math.round(bmp.width * r); c.height = Math.round(bmp.height * r);
+  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+  return new Promise(res => c.toBlob(res, "image/png"));
+}
+
+/* ---- convert ---- */
+const JOSEON_MSGS = ["비단 펴는 중…", "먹 가는 중…", "화원이 붓 드는 중…", "관복 그리는 중…", "안료 칠하는 중…", "표구하는 중…"];
+const ANIME_MSGS = ["스케치 그리는 중…", "선 따는 중…", "채색하는 중…", "반짝이 뿌리는 중…", "마무리 터치 중…"];
+const HAIR_MSGS = ["가위 소독하는 중…", "머리 감기는 중…", "스타일 잡는 중…", "드라이하는 중…", "마무리 손질 중…"];
+const msgs = ["반죽 치대는 중…", "얼굴 특징 잡는 중…", "조명이랑 질감 입히는 중…", "마지막 렌더링 중…"];
+async function convert(){
+  if (!file) return;
+  clearError(); show("stepLoading");
+  let i = 0, pct = 0;
+  const M = mode === "hair" ? HAIR_MSGS : mode === "anime" ? ANIME_MSGS : mode === "joseon" ? JOSEON_MSGS : msgs; $("#lmsg").textContent = M[0];
+  const t1 = setInterval(() => $("#lmsg").textContent = M[++i % M.length], 7000);
+  const t2 = setInterval(() => { pct = Math.min(92, pct + (pct < 60 ? 3 : 1)); $("#barFill").style.width = pct + "%"; }, 800);
+  try {
+    const png = await toPng(file);
+    const q = mode === "hair" ? `?mode=hair&style=${hairKey}` : mode === "anime" ? `?mode=anime&style=${animeKey}` : mode === "joseon" ? `?mode=joseon&style=${joseonKey}` : "";
+    const r = await fetch("/api/convert" + q, { method: "POST", headers: { "Content-Type": "image/png" }, body: png });
+    const text = await r.text(); let data = {};
+    try { data = JSON.parse(text); } catch {}
+    if (!r.ok) throw new Error(data.error || "서버 오류 (" + r.status + ")");
+    let shown = data.image;
+    if (mode === "joseon") {
+      $("#lmsg").textContent = "낙관 찍는 중…";
+      try {
+        const name = $("#jname").value.trim().slice(0, 6);
+        const blob = await composeJoseon(data.image, joseonKey, name);
+        const kr = await fetch("/api/keep", { method: "POST", headers: { "Content-Type": "image/png" }, body: blob });
+        const kd = await kr.json();
+        if (kr.ok && kd.url) { data.url = kd.url; shown = kd.url; }
+      } catch (e) { console.warn("합성 실패", e); }
+    }
+    const res = await fetch(shown); resultBlob = await res.blob();
+    resultUrl = data.url ? data.url + "?dl=1" : data.image;
+    $("#barFill").style.width = "100%";
+    $("#beforeImg").src = preview.src; $("#afterImg").src = shown; $("#downloadBtn").href = resultUrl;
+    $(".compare").classList.toggle("tall", mode === "joseon");
+    const label = mode === "hair" ? HAIR_NAMES[hairKey] : mode === "anime" ? ANIME_NAMES[animeKey] : mode === "joseon" ? ROLE_INFO[joseonKey].nm : "3D 캐릭터";
+    $("#afterCap").innerHTML = mode === "joseon" ? `<span class="rarity">${stars(ROLE_INFO[joseonKey].star)}</span>${label}` : label;
+    $("#resultLine").innerHTML = mode === "joseon" ? `<b>${$("#jname").value.trim().replace(/[<>&"]/g, "")}</b>님은 조선시대 <b>${label}</b>${hasBatchim(label) ? "이었" : "였"}사옵니다` : "";
+    const fname = mode === "hair" ? `hair-${label}.png` : mode === "anime" ? `anime-${label}.png` : mode === "joseon" ? `조선-${label}.png` : "3d-character.png";
+    $("#downloadBtn").download = fname; $("#sheetDownload").download = fname;
+    $("#otherBtn").hidden = mode === "anim";
+    $("#otherBtn").textContent = mode === "joseon" ? "🎲 신분 다시 뽑기" : mode === "anime" ? "🎲 다른 그림체도 해보기" : "🎲 다른 랜덤 머리 해보기";
+    setTimeout(() => show("stepResult"), 400);
+    loadStatus();
+  } catch (e) { error(e.message); }
+  finally { clearInterval(t1); clearInterval(t2); pct = 0; $("#barFill").style.width = "0"; }
+}
+/* ---- 서버 상태 (남은 횟수) ---- */
+async function loadStatus(){
+  try { const s = await (await fetch("/api/status")).json();
+    if (!s.ready) { error("아직 준비 중이에요. 관리자가 API 키를 등록하면 바로 쓸 수 있어요."); $("#go").disabled = true; }
+    if (s.left !== null) $("#left").textContent = (mode === "joseon" ? "오늘 그릴 수 있는 초상화 " + s.left + "장 남음" : "오늘 남은 변환 " + s.left + "회");
+  } catch {}
+}
+setMode(mode);
+loadStatus();
+/* ---- 카톡 등 인앱 브라우저 감지 → 외부 브라우저로 열기 ---- */
+(function(){
+  const ua = navigator.userAgent;
+  if (/KAKAOTALK/i.test(ua)) { $("#inapp").hidden = false; $("#inappOpen").href = "kakaotalk://web/openExternal?url=" + encodeURIComponent(location.href); }
+  else if (/Instagram|FBAN|FBAV|Line\//i.test(ua)) { $("#inapp").hidden = false; $("#inappOpen").href = location.href; $("#inappOpen").target = "_blank"; }
+})();
+$("#go").addEventListener("click", async () => {
+  if (mode === "hair") { $("#go").disabled = true; await roulette(); }
+  if (mode === "anime" && !animeKey) { $("#go").disabled = true; await animeRoulette(); }
+  if (mode === "joseon") {
+    if (!$("#jname").value.trim()) { $("#jname").focus(); return toast("이름을 먼저 써주세요"); }
+    $("#go").disabled = true; await revealRole();
+  }
+  convert();
+});
+$("#retry").addEventListener("click", convert);
+$("#otherBtn").addEventListener("click", async () => {
+  if (mode === "joseon") { await revealRole(joseonKey); return convert(); }
+  show("stepUpload"); window.scrollTo({top:0,behavior:"smooth"}); $("#go").disabled = true;
+  if (mode === "anime") await animeRoulette(animeKey); else await roulette(hairKey);
+  convert();
+});
+
+/* ---- share / reset ---- */
+function openSheet(){ $("#sheetImg").src = $("#afterImg").src; $("#sheetDownload").href = resultUrl; $("#sheet").hidden = false; }
+$("#sheetClose").addEventListener("click", () => $("#sheet").hidden = true);
+$("#sheet").addEventListener("click", ev => { if (ev.target === $("#sheet")) $("#sheet").hidden = true; });
+$("#shareBtn").addEventListener("click", async () => {
+  if (!resultBlob) return;
+  const f = new File([resultBlob], "3d-character.png", { type: "image/png" });
+  if (navigator.canShare && navigator.canShare({ files: [f] })) {
+    try { await navigator.share({ files: [f], title: mode === "hair" ? "내 새 헤어스타일" : mode === "anime" ? "애니 주인공이 된 나" : mode === "joseon" ? "조선시대의 나" : "내 3D 캐릭터" }); return; } catch (e) { if (e.name === "AbortError") return; }
+  }
+  openSheet();
+});
+$("#again").addEventListener("click", () => {
+  file = null; preview.hidden = true; dropEmpty.hidden = false; $("#changeTag").hidden = true; fileInput.value = ""; updateGo();
+  show("stepUpload"); window.scrollTo({top:0,behavior:"smooth"});
+});
+</script>
+</body>
+</html>
