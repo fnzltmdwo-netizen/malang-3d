@@ -139,6 +139,7 @@ function buildPrompt(modeKey, styleKey) {
     fidelity: st.fidelity || m.fidelity || "high",   // high = 사진 얼굴을 거의 그대로, low = 생김새만 참고해 새로 그림
     quality: st.quality || m.quality || null,        // 없으면 관리자 페이지 설정
     model: st.model || m.model || null,
+    refs: st.refs || m.refs || [],                   // 그림체 참고용 이미지 파일들 (서버 폴더 기준 경로)
   };
 }
 
@@ -162,6 +163,20 @@ function isAdmin(req) {
 }
 const clientIp = (req) => (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket.remoteAddress;
 
+// ---------- 그림체 참고 이미지 ----------
+const refCache = new Map();
+function loadRef(rel) {
+  try {
+    const fp = path.join(__dirname, path.normalize(rel));
+    if (!fp.startsWith(__dirname)) return null;
+    if (!refCache.has(fp)) {
+      const ext = path.extname(fp).toLowerCase();
+      refCache.set(fp, { buf: fs.readFileSync(fp), type: ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg", name: path.basename(fp) });
+    }
+    return refCache.get(fp);
+  } catch (e) { console.error("참고 이미지 없음:", rel); return null; }
+}
+
 // ---------- OpenAI 변환 ----------
 const MODELS = ["gpt-image-1.5", "gpt-image-1"]; // 최신 모델 먼저, 없으면 자동으로 다음 모델
 async function convert(imageBuf, prompt = PROMPT, size = "1024x1024", model = MODELS[0], opt = {}) {
@@ -171,7 +186,13 @@ async function convert(imageBuf, prompt = PROMPT, size = "1024x1024", model = MO
   form.append("size", size);
   form.append("quality", opt.quality || cfg.quality || "medium");
   form.append("input_fidelity", opt.fidelity || "high"); // high = 얼굴 그대로 보존, low = 자연스럽게 새로 그림
-  form.append("image", new Blob([imageBuf], { type: "image/png" }), "photo.png");
+  const refs = (opt.refs || []).map(loadRef).filter(Boolean);
+  if (refs.length) {
+    form.append("image[]", new Blob([imageBuf], { type: "image/png" }), "photo.png");   // 1번 = 사용자 사진
+    for (const r of refs) form.append("image[]", new Blob([r.buf], { type: r.type }), r.name); // 2번~ = 그림체 참고
+  } else {
+    form.append("image", new Blob([imageBuf], { type: "image/png" }), "photo.png");
+  }
   const r = await fetch("https://api.openai.com/v1/images/edits", { method: "POST", headers: { Authorization: `Bearer ${cfg.apiKey}` }, body: form });
   const text = await r.text(); let data = {};
   try { data = JSON.parse(text); } catch {}
@@ -236,7 +257,7 @@ http.createServer(async (req, res) => {
       let buf; try { buf = await readBody(req, MAX_UPLOAD); } catch { return send(res, 413, { error: "사진이 너무 커요 (12MB 이하)" }); }
       const job = buildPrompt(url.searchParams.get("mode") || "anim", url.searchParams.get("style") || "default");
       if (!job) return send(res, 400, { error: "스타일을 다시 골라 주세요." });
-      const b64 = await convert(buf, job.prompt, job.size, job.model || MODELS[0], { fidelity: job.fidelity, quality: job.quality });
+      const b64 = await convert(buf, job.prompt, job.size, job.model || MODELS[0], { fidelity: job.fidelity, quality: job.quality, refs: job.refs });
       hits.push(now); ipHits.set(ip, hits);
       cfg.todayCount++; cfg.total++; save();
       const id = crypto.randomBytes(8).toString("hex");
