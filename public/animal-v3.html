@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>말랑 동물상 연구소</title>
+<meta name="description" content="사진 한 장으로 내 동물상을 분석하고 그 동물로 변신해보세요">
+<meta name="theme-color" content="#FFF6EA">
+<meta property="og:type" content="website">
+<meta property="og:title" content="말랑 동물상 연구소 🔬 나는 무슨 동물상?">
+<meta property="og:description" content="동물 100종 중 내 동물상 판정 + 그 동물로 변신까지!">
+<meta property="og:image" content="https://malang-3d-studio.onrender.com/og-animal.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:url" content="https://malang-3d-studio.onrender.com/animal">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+:root{
+  --bg:#FFF6EA; --paper:#FFFFFF; --paper2:#FFF1DE; --ink:#2A2433; --ink2:#6E6478; --rule:#F0DEC6;
+  --orange:#FF8A4C; --orange-d:#E06A2C; --mint:#2FB591; --mint-d:#1F8F71; --lilac:#B9A7F5; --sun:#FFD25E;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{font-family:"Gowun Dodum","Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:var(--ink);line-height:1.6;min-height:100vh;word-break:keep-all;overflow-wrap:break-word;
+  background-color:var(--bg);
+  background-image:radial-gradient(circle at 1px 1px,rgba(42,36,51,.07) 1px,transparent 0);background-size:18px 18px}
+.wrap{max-width:520px;margin:0 auto;padding:26px 16px 60px}
+h1,h2,h3,.disp{font-family:"Jua","Gowun Dodum",sans-serif;font-weight:400;text-wrap:balance;margin:0}
+
+/* 머리말 */
+.hero{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;margin-bottom:20px}
+.badge{width:64px;height:64px;border-radius:18px;background:var(--ink);display:grid;place-items:center;font-size:34px;transform:rotate(-6deg);box-shadow:0 6px 0 -1px #00000022}
+.lab{font-size:12px;letter-spacing:.2em;color:var(--ink2);margin:0 0 2px}
+.hero h1{font-size:34px;line-height:1.1}
+.hero h1 b{font-weight:400;color:var(--orange)}
+.sub{margin:6px 0 0;color:var(--ink2);font-size:14.5px}
+.dex{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;margin:0 0 18px;background:#fff;border:2px solid var(--ink);border-radius:999px;padding:6px 6px 6px 14px;overflow:hidden}
+.dex-label{font-family:"Jua",sans-serif;font-size:15px;white-space:nowrap}
+.dex-label b{font-weight:400;color:var(--orange)}
+.dex-track{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.dex-row{display:flex;gap:6px;width:max-content;animation:dex 160s linear infinite}
+.dex-row span{white-space:nowrap;font-size:13px;background:var(--paper2);border-radius:999px;padding:3px 10px}
+@keyframes dex{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.dex-row{animation:none}}
+
+/* 카드 */
+.card{background:var(--paper);border:2px solid var(--ink);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:6px 6px 0 var(--ink)}
+.card h2{font-size:22px;margin-bottom:12px}
+.step{display:grid;gap:10px;margin-bottom:18px}
+.step h3{font-size:18px;display:flex;align-items:center;gap:8px}
+.num{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--orange);color:#fff;font-size:14px;font-family:"Jua",sans-serif}
+
+.drop{display:grid;place-items:center;position:relative;min-height:210px;border-radius:14px;background:var(--paper2);border:2px dashed #E7C9A2;cursor:pointer;overflow:hidden;text-align:center;transition:.2s}
+.drop:hover,.drop.over{border-color:var(--orange);background:#FFE8CF}
+.drop .empty{padding:18px;display:grid;gap:2px;justify-items:center}
+.drop .ic{font-size:40px}
+.drop b{font-family:"Jua",sans-serif;font-weight:400;font-size:19px}
+.drop small{color:var(--ink2);font-size:13px}
+.drop img{width:100%;max-height:360px;object-fit:contain;display:block;background:var(--paper2)}
+.drop .change{position:absolute;right:10px;bottom:10px;background:#fff;border:2px solid var(--ink);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700}
+.namein{width:100%;padding:12px 14px;border-radius:12px;border:2px solid var(--rule);font:inherit;font-size:16px;background:#fff;color:var(--ink)}
+.namein:focus{outline:none;border-color:var(--orange)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;border-radius:14px;border:2px solid var(--ink);background:#fff;font:inherit;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;text-decoration:none;box-shadow:0 4px 0 var(--ink);transition:transform .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.primary{background:var(--orange);color:#fff}
+.btn.mint{background:var(--mint);color:#fff}
+.btn.big{width:100%;font-family:"Jua",sans-serif;font-weight:400;font-size:20px;padding:15px}
+.btn.ghost{border-color:transparent;box-shadow:none;color:var(--ink2);width:100%}
+.btn:focus-visible{outline:3px solid var(--lilac);outline-offset:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.note{font-size:12.5px;color:var(--ink2);text-align:center;margin:12px 0 0}
+
+/* 로딩 */
+.loading{text-align:center;padding:34px 20px}
+.scan{position:relative;width:150px;height:150px;margin:0 auto 16px;border-radius:18px;overflow:hidden;border:2px solid var(--ink);background:var(--paper2)}
+.scan img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.8)}
+.scan::after{content:"";position:absolute;left:0;right:0;height:26%;background:linear-gradient(transparent,rgba(47,181,145,.55),transparent);animation:scan 1.6s ease-in-out infinite}
+@keyframes scan{0%{top:-26%}100%{top:100%}}
+.lmsg{font-family:"Jua",sans-serif;font-size:20px;margin:0}
+.bar{height:8px;background:var(--paper2);border-radius:99px;margin:14px auto 6px;max-width:220px;overflow:hidden;border:1.5px solid var(--ink)}
+.bar i{display:block;height:100%;width:0;background:var(--mint);transition:width .8s linear}
+@media (prefers-reduced-motion:reduce){.scan::after{animation:none;top:37%}}
+
+/* 결과서 */
+.report{position:relative}
+.report .tag{font-size:12px;letter-spacing:.18em;color:var(--ink2);margin:0 0 6px}
+.verdict{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;padding:14px;border-radius:14px;background:var(--paper2);border:2px solid var(--ink)}
+.big-emoji{font-size:62px;line-height:1;width:84px;height:84px;display:grid;place-items:center;background:#fff;border:2px solid var(--ink);border-radius:50%}
+.verdict .who{margin:0;color:var(--ink2);font-size:14px}
+.verdict .what{font-family:"Jua",sans-serif;font-size:30px;line-height:1.15;margin:2px 0}
+.verdict .what em{font-style:normal;color:var(--orange)}
+.verdict .nick{margin:0;font-size:14px}
+.stamp{position:absolute;right:10px;top:-10px;z-index:2;width:70px;height:70px;border-radius:50%;border:3px solid #D9482B;color:#D9482B;display:grid;place-items:center;text-align:center;font-family:"Jua",sans-serif;font-size:15px;line-height:1.1;transform:rotate(12deg);background:rgba(255,255,255,.6)}
+.scores{display:grid;gap:9px;margin:16px 0 4px}
+.sc{display:grid;grid-template-columns:86px 1fr 46px;gap:8px;align-items:center;font-size:14.5px}
+.sc .nm{white-space:nowrap}
+.sc .track{display:block;height:14px;border-radius:99px;background:var(--paper2);border:1.5px solid var(--ink);overflow:hidden}
+.sc .fill{display:block;height:100%;width:0;border-radius:99px;background:var(--lilac);transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.sc:first-child .fill{background:var(--orange)}
+.sc .pc{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.why{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:6px}
+.why li{display:grid;grid-template-columns:22px 1fr;gap:6px;font-size:14.5px}
+.why li::before{content:"✔";color:var(--mint);font-weight:700}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}
+.tags span{font-size:13px;background:#fff;border:1.5px solid var(--ink);border-radius:999px;padding:2px 10px}
+.charm{margin:14px 0 0;font-size:14.5px;display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start}
+.charm b{font-family:"Jua",sans-serif;font-weight:400;color:var(--orange);white-space:nowrap}
+.match{margin:12px 0 0;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;padding:12px 14px;border-radius:12px;border:2px dashed var(--mint);background:#EFFBF6}
+.match .mi{font-size:34px;line-height:1}
+.match .mt{font-family:"Jua",sans-serif;font-size:17px}
+.match .mr{font-size:13.5px;color:var(--ink2)}
+.newdex{display:inline-block;margin-left:6px;font-size:12px;background:var(--sun);border:1.5px solid var(--ink);border-radius:999px;padding:1px 8px;vertical-align:middle}
+.dex-label small{font-family:"Gowun Dodum",sans-serif;font-size:12px;color:var(--ink2);margin-left:4px}
+.sheet-box .row3{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.sheet-box .wide{grid-column:1/-1}
+.persona{margin:14px 0 0;padding:12px 14px;border-radius:12px;background:#F3EEFF;font-size:14.5px}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.compare figure{margin:0}
+.compare img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:14px;border:2px solid var(--ink);display:block;background:var(--paper2)}
+.compare figcaption{text-align:center;font-size:13px;color:var(--ink2);margin-top:6px}
+.compare .after img{box-shadow:4px 4px 0 var(--orange)}
+
+.err{background:#FFE9E3;border:2px solid #D9482B;color:#7A1F0E;padding:12px 14px;border-radius:12px;font-size:14px;margin:0 0 14px}
+.inapp{background:#FFF4D6;border:2px solid var(--sun);padding:12px 14px;border-radius:12px;font-size:13.5px;margin-bottom:14px}
+.inapp a{display:inline-block;margin-top:8px;padding:8px 14px;border-radius:10px;background:var(--ink);color:#fff;font-weight:700;text-decoration:none}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;animation:fade 2.6s forwards;z-index:30;white-space:nowrap}
+@keyframes fade{0%,78%{opacity:1}100%{opacity:0}}
+.sheet{position:fixed;inset:0;background:rgba(42,36,51,.8);display:grid;place-items:center;padding:20px;z-index:20}
+.sheet-box{background:#fff;border:2px solid var(--ink);border-radius:18px;padding:16px;max-width:400px;width:100%;text-align:center}
+.sheet-box img{width:100%;display:block;border-radius:12px}
+.sheet-box p{margin:12px 0 0;font-size:14px}
+footer{text-align:center;color:var(--ink2);font-size:12px;margin-top:26px;line-height:1.7}
+@media (max-width:380px){.hero h1{font-size:29px}.verdict .what{font-size:25px}.stamp{width:64px;height:64px;font-size:13px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="hero">
+    <div class="badge" aria-hidden="true">🔬</div>
+    <div>
+      <p class="lab">ANIMAL FACE LAB</p>
+      <h1>말랑 <b>동물상</b> 연구소</h1>
+      <p class="sub">동물 100종 중 내 동물상을 판정하고, 그 동물로 변신까지!</p>
+    </div>
+  </header>
+  <div class="dex" aria-label="동물 도감 100종">
+    <span class="dex-label">도감 <b>100</b>종<small id="myDex"></small></span>
+    <div class="dex-track"><div class="dex-row" id="dexRow"></div></div>
+  </div>
+
+  <p id="error" class="err" hidden></p>
+  <div id="inapp" class="inapp" hidden>카톡 안에서 열렸어요. 여기서는 이미지 저장이 안 될 수 있어요.<br><a id="inappOpen" href="#">크롬/사파리로 열기</a></div>
+
+  <!-- 1. 업로드 -->
+  <section id="stepUpload" class="card">
+    <div class="step">
+      <h3><span class="num">1</span>얼굴 사진 올리기</h3>
+      <label id="drop" class="drop" for="file">
+        <input id="file" type="file" accept="image/*" hidden>
+        <div id="dropEmpty" class="empty">
+          <div class="ic" aria-hidden="true">📷</div>
+          <b>탭해서 사진 고르기</b>
+          <small>정면에서 얼굴이 크게, 밝게 나온 사진이 정확해요</small>
+        </div>
+        <img id="preview" alt="" hidden>
+        <span id="changeTag" class="change" hidden>사진 바꾸기</span>
+      </label>
+    </div>
+    <div class="step">
+      <h3><span class="num">2</span>이름 <small style="font-family:'Gowun Dodum';font-size:13px;color:var(--ink2)">(안 써도 돼요)</small></h3>
+      <input id="nm" class="namein" type="text" maxlength="8" placeholder="예: 승재" autocomplete="off">
+    </div>
+    <button id="goAnalyze" class="btn primary big" disabled>🔍 내 동물상 분석하기</button>
+    <p class="note"><span id="left"></span><br>사진은 분석·변신에만 쓰이고 저장되지 않아요.</p>
+  </section>
+
+  <!-- 로딩 -->
+  <section id="stepLoading" class="card loading" hidden>
+    <div class="scan"><img id="scanImg" alt=""></div>
+    <p id="lmsg" class="lmsg">얼굴 스캔 중…</p>
+    <div class="bar"><i id="barFill"></i></div>
+    <p class="note" id="lnote">잠깐이면 돼요</p>
+  </section>
+
+  <!-- 2. 분석 결과서 -->
+  <section id="stepReport" class="card report" hidden>
+    <div class="stamp" aria-hidden="true">판정<br>완료</div>
+    <p class="tag">동물상 분석 결과서</p>
+    <div class="verdict">
+      <div class="big-emoji" id="rEmoji">🐶</div>
+      <div>
+        <p class="who"><b id="rName">당신</b>의 동물상은</p>
+        <p class="what"><em id="rAnimal">강아지</em>상</p>
+        <p class="nick" id="rTitle"></p>
+        <div class="tags" id="rTags"></div>
+      </div>
+    </div>
+    <div class="scores" id="rScores"></div>
+    <ul class="why" id="rWhy"></ul>
+    <p class="charm" id="rCharm" hidden><b>✨ 매력 포인트</b><span id="rCharmT"></span></p>
+    <p class="persona" id="rPersona"></p>
+    <div class="match" id="rMatch" hidden><span class="mi" id="rMatchI"></span><div><div class="mt">찰떡궁합 동물상: <span id="rMatchN"></span></div><div class="mr" id="rMatchR"></div></div></div>
+    <button id="cardBtn1" class="btn mint" style="width:100%;margin-top:16px">🪪 결과 카드 이미지 만들기</button>
+    <button id="goMorph" class="btn primary big" style="margin-top:16px">🐶 강아지로 변신하기</button>
+    <button id="goMorph2" class="btn" style="width:100%;margin-top:10px"></button>
+    <button id="again1" class="btn ghost" style="margin-top:6px">다른 사진으로 다시 분석</button>
+  </section>
+
+  <!-- 3. 변신 결과 -->
+  <section id="stepResult" class="card" hidden>
+    <h2 id="resTitle">변신 완료!</h2>
+    <div class="compare">
+      <figure><img id="beforeImg" alt="원본 사진"><figcaption>원본</figcaption></figure>
+      <figure class="after"><img id="afterImg" alt="동물로 변신한 모습"><figcaption id="afterCap"></figcaption></figure>
+    </div>
+    <p class="note">저장이 안 되면 변신 그림을 <b>길게 눌러</b> "이미지 저장"을 고르세요.</p>
+    <div class="row">
+      <a id="downloadBtn" class="btn primary" download="animal.png">⬇️ 이미지 저장</a>
+      <button id="shareBtn" class="btn mint">📤 공유하기</button>
+    </div>
+    <button id="cardBtn2" class="btn mint" style="width:100%;margin-top:12px">🪪 변신 사진 넣은 결과 카드 만들기</button>
+    <button id="backReport" class="btn" style="width:100%;margin-top:10px">📋 분석 결과 다시 보기</button>
+    <button id="again2" class="btn ghost" style="margin-top:6px">다른 사진으로 처음부터</button>
+  </section>
+
+  <footer>분석과 변신은 OpenAI AI가 해요 · 재미로만 봐주세요 🐾</footer>
+
+  <div id="sheet" class="sheet" hidden>
+    <div class="sheet-box">
+      <img id="sheetImg" alt="변신 결과">
+      <p><b>이미지를 길게 누르거나(폰) 우클릭해서(PC)</b><br>"이미지 저장"을 고르면 저장돼요.</p>
+      <div class="row3">
+        <a id="sheetDownload" class="btn primary" download="animal.png">⬇️ 저장</a>
+        <button id="sheetShare" class="btn mint">📤 공유</button>
+        <button id="sheetClose" class="btn wide">닫기</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const MODE = "animal";
+const ANIMALS = {
+  pig:["돼지","🐷"], monkey:["원숭이","🐵"], gorilla:["고릴라","🦍"], hippo:["하마","🦛"],
+  retriever:["골든리트리버", "🦮"], shiba:["시바견", "🐕"], maltese:["말티즈", "🐶"], pomeranian:["포메라니안", "🐶"], bichon:["비숑", "🐩"],
+  corgi:["웰시코기", "🐕"], jindo:["진돗개", "🐕"], husky:["시베리안 허스키", "🐺"], samoyed:["사모예드", "🐶"], poodle:["푸들", "🐩"],
+  dachshund:["닥스훈트", "🐕"], bordercollie:["보더콜리", "🐕"], beagle:["비글", "🐶"], doberman:["도베르만", "🐕"], cheesecat:["치즈냥이", "🐈"],
+  russianblue:["러시안블루", "🐈"], scottishfold:["스코티시폴드", "🐱"], persian:["페르시안", "🐱"], siamese:["샴고양이", "🐈"], munchkin:["먼치킨", "🐱"],
+  bengal:["벵갈", "🐆"], norwegian:["노르웨이숲", "🐈"], mainecoon:["메인쿤", "🦁"], blackcat:["검은 고양이", "🐈‍⬛"], fox:["여우", "🦊"],
+  fennec:["사막여우", "🦊"], arcticfox:["북극여우", "🦊"], wolf:["늑대", "🐺"], raccoondog:["너구리", "🦝"], brownbear:["곰", "🐻"],
+  panda:["판다", "🐼"], polarbear:["북극곰", "🐻‍❄️"], redpanda:["레서판다", "🐾"], moonbear:["반달가슴곰", "🐻"], hamster:["햄스터", "🐹"],
+  squirrel:["다람쥐", "🐿️"], chinchilla:["친칠라", "🐭"], guineapig:["기니피그", "🐹"], flyingsquirrel:["하늘다람쥐", "🐿️"], capybara:["카피바라", "🦫"],
+  hedgehog:["고슴도치", "🦔"], ferret:["페럿", "🐾"], otter:["수달", "🦦"], seaotter:["해달", "🦦"], rabbit:["토끼", "🐰"],
+  lop:["롭이어 토끼", "🐰"], deer:["사슴", "🦌"], waterdeer:["고라니", "🦌"], reindeer:["순록", "🦌"],
+  alpaca:["알파카", "🦙"], giraffe:["기린", "🦒"], tiger:["호랑이", "🐯"], lion:["사자", "🦁"], leopard:["표범", "🐆"],
+  cheetah:["치타", "🐆"], blackpanther:["흑표범", "🐆"], lynx:["스라소니", "🐱"], dolphin:["돌고래", "🐬"], seal:["물범", "🦭"],
+  sealion:["바다사자", "🦭"], penguin:["펭귄", "🐧"], orca:["범고래", "🐋"], whale:["고래", "🐋"], turtle:["거북이", "🐢"],
+  shark:["상어", "🦈"], seahorse:["해마", "🐠"], axolotl:["우파루파", "🦎"], owl:["부엉이", "🦉"], eagle:["독수리", "🦅"],
+  falcon:["매", "🦅"], parrot:["앵무새", "🦜"], sparrow:["참새", "🐦"], duck:["오리", "🦆"], swan:["백조", "🦢"],
+  crane:["두루미", "🐦"], flamingo:["플라밍고", "🦩"], bushtit:["뱁새", "🐦"], trex:["티라노", "🦖"], brachio:["초식공룡", "🦕"],
+  gecko:["도마뱀", "🦎"], chameleon:["카멜레온", "🦎"], snake:["뱀", "🐍"], crocodile:["악어", "🐊"], koala:["코알라", "🐨"],
+  quokka:["쿼카", "🦘"], kangaroo:["캥거루", "🦘"], meerkat:["미어캣", "🐾"], raccoon:["라쿤", "🦝"], zebra:["얼룩말", "🦓"],
+  badger:["오소리", "🦡"], weasel:["족제비", "🐾"], sheep:["양", "🐑"], sloth:["나무늘보", "🦥"],
+  frog:["개구리", "🐸"], mouse:["생쥐", "🐭"], beaver:["비버", "🦫"],
+};
+let file = null, pngBlob = null, report = null, morphKey = null, resultUrl = null, resultBlob = null;
+/* ---- 내 도감 (이 폰에만 저장) ---- */
+function getDex(){ try { return JSON.parse(localStorage.getItem("malang-dex") || "[]").filter(k => ANIMALS[k]); } catch { return []; } }
+function addDex(k){ const d = getDex(); if (d.includes(k)) return false; d.push(k); try { localStorage.setItem("malang-dex", JSON.stringify(d)); } catch {} renderDex(); return true; }
+function renderDex(){ const n = getDex().length; $("#myDex").textContent = n ? ` · 내가 찾은 ${n}종` : ""; }
+(function(){ const chips = Object.values(ANIMALS).map(([n, i]) => `<span>${i} ${n}</span>`).join(""); document.getElementById("dexRow").innerHTML = chips + chips; })();
+const hasBatchim = (w) => { const c = w.charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c <= 11171 && c % 28 !== 0; };
+const ro = (w) => w + (hasBatchim(w) && (w.charCodeAt(w.length - 1) - 0xAC00) % 28 !== 8 ? "으로" : "로");
+const esc = (t) => String(t).replace(/[<>&"]/g, c => ({ "<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;" }[c]));
+
+/* ---- 공통 ---- */
+function toast(m){ const t = document.createElement("div"); t.className = "toast"; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2600); }
+function show(id){ ["stepUpload","stepLoading","stepReport","stepResult"].forEach(x => $("#"+x).hidden = x !== id); window.scrollTo({ top: 0, behavior: "smooth" }); }
+function error(m){ $("#error").textContent = "⚠️ " + m; $("#error").hidden = false; show("stepUpload"); }
+function clearError(){ $("#error").hidden = true; }
+function who(){ return $("#nm").value.trim() || "당신"; }
+
+/* ---- 사진 고르기 ---- */
+const drop = $("#drop"), preview = $("#preview");
+function pick(f){
+  if (!f) return;
+  if (!f.type.startsWith("image/")) return error("이미지 파일만 올릴 수 있어요");
+  file = f; pngBlob = null; clearError();
+  preview.src = URL.createObjectURL(f); preview.hidden = false; $("#dropEmpty").hidden = true; $("#changeTag").hidden = false;
+  $("#goAnalyze").disabled = false;
+}
+$("#file").addEventListener("change", () => pick($("#file").files[0]));
+["dragenter","dragover"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", ev => pick(ev.dataTransfer.files[0]));
+document.addEventListener("paste", ev => { const f = [...(ev.clipboardData?.files || [])][0]; if (f) pick(f); });
+
+async function toPng(f, max = 1024){
+  const bmp = await createImageBitmap(f).catch(() => null);
+  if (!bmp) throw new Error("이 사진 형식은 브라우저가 읽지 못해요. JPG/PNG로 다시 시도해 주세요.");
+  const r = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas"); c.width = Math.round(bmp.width * r); c.height = Math.round(bmp.height * r);
+  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+  return new Promise(res => c.toBlob(res, "image/png"));
+}
+
+/* ---- 로딩 화면 ---- */
+let timers = [];
+function startLoading(msgs, note){
+  $("#scanImg").src = preview.src; $("#lnote").textContent = note;
+  let i = 0, pct = 0; $("#lmsg").textContent = msgs[0]; $("#barFill").style.width = "0";
+  show("stepLoading");
+  timers.push(setInterval(() => $("#lmsg").textContent = msgs[++i % msgs.length], 2600));
+  timers.push(setInterval(() => { pct = Math.min(92, pct + (pct < 60 ? 4 : 1)); $("#barFill").style.width = pct + "%"; }, 700));
+}
+function stopLoading(){ timers.forEach(clearInterval); timers = []; $("#barFill").style.width = "100%"; }
+
+async function postImage(url, blob){
+  const r = await fetch(url, { method: "POST", headers: { "Content-Type": "image/png" }, body: blob });
+  const text = await r.text(); let data = {};
+  try { data = JSON.parse(text); } catch {}
+  if (!r.ok) throw new Error(data.error || "서버 오류 (" + r.status + ")");
+  return data;
+}
+
+/* ---- 분석 ---- */
+const ANALYZE_MSGS = ["얼굴 스캔 중…", "눈꼬리 각도 재는 중…", "얼굴형 측정 중…", "동물 도감 100종 넘기는 중…", "품종까지 좁히는 중…", "판정 도장 찍는 중…"];
+$("#goAnalyze").addEventListener("click", async () => {
+  if (!file) return;
+  clearError(); startLoading(ANALYZE_MSGS, "10초쯤 걸려요");
+  try {
+    pngBlob = pngBlob || await toPng(file);
+    const small = await toPng(file, 768);
+    const out = await postImage(`/api/analyze?mode=${MODE}`, small);
+    if (out.error) throw new Error(out.error);
+    if (!ANIMALS[out.top]) throw new Error("분석 결과가 이상해요. 다시 시도해 주세요.");
+    report = out; stopLoading(); renderReport();
+  } catch (e) { stopLoading(); error(e.message); }
+});
+
+function renderReport(){
+  const [nm, ic] = ANIMALS[report.top];
+  $("#rEmoji").textContent = ic; $("#rName").textContent = who() === "당신" ? "당신" : who() + "님"; $("#rAnimal").textContent = nm;
+  $("#rTitle").textContent = report.title || "";
+  const scores = (report.scores || []).filter(s => ANIMALS[s.key]).slice(0, 3);
+  $("#rScores").innerHTML = scores.map(s => `<div class="sc"><span class="nm">${ANIMALS[s.key][1]} ${ANIMALS[s.key][0]}</span><span class="track"><span class="fill" data-w="${Math.max(4, Math.min(100, +s.score || 0))}"></span></span><span class="pc">${Math.round(+s.score || 0)}%</span></div>`).join("");
+  $("#rWhy").innerHTML = (report.reasons || []).slice(0, 3).map(r => `<li>${esc(r)}</li>`).join("");
+  $("#rPersona").textContent = report.personality || ""; $("#rPersona").hidden = !report.personality;
+  $("#rTags").innerHTML = (report.keywords || []).slice(0, 4).map(k => `<span>${esc(String(k).startsWith("#") ? k : "#" + k)}</span>`).join("");
+  $("#rCharm").hidden = !report.charm; $("#rCharmT").textContent = report.charm || "";
+  const mk = ANIMALS[report.match] && report.match !== report.top ? report.match : null;
+  $("#rMatch").hidden = !mk;
+  if (mk) { $("#rMatchI").textContent = ANIMALS[mk][1]; $("#rMatchN").textContent = ANIMALS[mk][0] + "상"; $("#rMatchR").textContent = report.matchReason || ""; }
+  const isNew = addDex(report.top);
+  $("#rAnimal").parentElement.querySelector(".newdex")?.remove();
+  if (isNew) $("#rAnimal").insertAdjacentHTML("afterend", '<span class="newdex">🆕 도감 등록</span>');
+  $("#goMorph").textContent = `${ic} ${ro(nm)} 변신하기`;
+  const second = scores[1] && ANIMALS[scores[1].key] ? scores[1].key : null;
+  $("#goMorph2").hidden = !second;
+  if (second) { $("#goMorph2").textContent = `2위 ${ANIMALS[second][1]} ${ro(ANIMALS[second][0])}도 변신해보기`; $("#goMorph2").dataset.k = second; }
+  show("stepReport");
+  requestAnimationFrame(() => setTimeout(() => document.querySelectorAll(".sc .fill").forEach(f => f.style.width = f.dataset.w + "%"), 120));
+}
+
+/* ---- 변신 ---- */
+const MORPH_MSGS = ["털 심는 중…", "귀 달아주는 중…", "꼬리 붙이는 중…", "표정 맞추는 중…", "털 빗질하는 중…"];
+async function morph(key){
+  if (!pngBlob) pngBlob = await toPng(file);
+  morphKey = key; clearError();
+  startLoading(MORPH_MSGS, "30초~1분 걸려요. 화면을 닫지 마세요");
+  try {
+    const data = await postImage(`/api/convert?mode=${MODE}&style=${key}`, pngBlob);
+    const res = await fetch(data.image); resultBlob = await res.blob();
+    resultUrl = data.url ? data.url + "?dl=1" : data.image;
+    const [nm, ic] = ANIMALS[key];
+    $("#beforeImg").src = preview.src; $("#afterImg").src = data.image;
+    $("#afterCap").textContent = `${ic} ${nm} ${who() === "당신" ? "" : who()}`.trim();
+    $("#resTitle").textContent = `${ic} ${ro(nm)} 변신 완료!`;
+    $("#downloadBtn").href = resultUrl; $("#downloadBtn").download = `동물상-${nm}.png`; $("#sheetDownload").download = `동물상-${nm}.png`;
+    stopLoading(); show("stepResult"); loadStatus();
+  } catch (e) { stopLoading(); $("#error").textContent = "⚠️ " + e.message; $("#error").hidden = false; show("stepReport"); }
+}
+$("#goMorph").addEventListener("click", () => morph(report.top));
+$("#goMorph2").addEventListener("click", () => morph($("#goMorph2").dataset.k));
+$("#backReport").addEventListener("click", () => show("stepReport"));
+function restart(){ file = null; pngBlob = null; report = null; preview.hidden = true; $("#dropEmpty").hidden = false; $("#changeTag").hidden = true; $("#file").value = ""; $("#goAnalyze").disabled = true; clearError(); show("stepUpload"); }
+$("#again1").addEventListener("click", restart); $("#again2").addEventListener("click", restart);
+
+/* ---- 결과 카드 이미지 (1080x1350) ---- */
+function loadImg(src){ return new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(im); im.onerror = no; im.src = src; }); }
+function rr(g, x, y, w, h, r){ g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+function cover(g, im, x, y, w, h){ const s = Math.max(w / im.naturalWidth, h / im.naturalHeight); const sw = w / s, sh = h / s; g.drawImage(im, (im.naturalWidth - sw) / 2, (im.naturalHeight - sh) / 2, sw, sh, x, y, w, h); }
+function wrapText(g, text, x, y, maxW, lh, maxLines){
+  const words = String(text).split(" "); let line = "", lines = [];
+  for (const w of words) { const t = line ? line + " " + w : w; if (g.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; }
+  if (line) lines.push(line); lines = lines.slice(0, maxLines);
+  lines.forEach((l, i) => g.fillText(l, x, y + i * lh)); return lines.length * lh;
+}
+async function makeCard(withMorph){
+  const W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d");
+  const J = (s) => `${s}px "Jua", "Gowun Dodum", sans-serif`, D = (s) => `${s}px "Gowun Dodum", sans-serif`;
+  try { await Promise.all([document.fonts.load(J(40)), document.fonts.load(D(30))]); } catch {}
+  const ink = "#2A2433", orange = "#FF8A4C", mint = "#2FB591", paper2 = "#FFF1DE";
+  // 바탕 + 점무늬
+  g.fillStyle = "#FFF6EA"; g.fillRect(0, 0, W, H);
+  g.fillStyle = "rgba(42,36,51,.07)"; for (let y = 10; y < H; y += 26) for (let x = 10; x < W; x += 26) g.fillRect(x, y, 3, 3);
+  // 카드
+  g.fillStyle = ink; rr(g, 58, 58, W - 104, H - 104, 40); g.fill();
+  g.fillStyle = "#fff"; rr(g, 46, 46, W - 104, H - 104, 40); g.fill(); g.lineWidth = 5; g.strokeStyle = ink; g.stroke();
+  g.fillStyle = ink; g.font = D(28); g.textBaseline = "top"; g.fillText("🔬 말랑 동물상 연구소 · 분석 결과서", 96, 92);
+  const [nm, ic] = ANIMALS[report.top]; const top = (report.scores || [])[0]; const pct = top ? Math.round(+top.score) : "";
+  // 사진
+  const imgY = 150, imgS = withMorph ? 420 : 300;
+  if (withMorph) {
+    const a = await loadImg(preview.src), b = await loadImg($("#afterImg").src);
+    g.save(); rr(g, 96, imgY, imgS, imgS, 28); g.clip(); cover(g, a, 96, imgY, imgS, imgS); g.restore();
+    g.save(); rr(g, W - 96 - imgS, imgY, imgS, imgS, 28); g.clip(); cover(g, b, W - 96 - imgS, imgY, imgS, imgS); g.restore();
+    g.lineWidth = 5; rr(g, 96, imgY, imgS, imgS, 28); g.stroke(); rr(g, W - 96 - imgS, imgY, imgS, imgS, 28); g.stroke();
+    g.fillStyle = orange; g.beginPath(); g.arc(W / 2, imgY + imgS / 2, 46, 0, Math.PI * 2); g.fill(); g.stroke();
+    g.fillStyle = "#fff"; g.font = J(52); g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("➜", W / 2, imgY + imgS / 2 + 2); g.textAlign = "left";
+  } else {
+    const a = await loadImg(preview.src);
+    g.save(); g.beginPath(); g.arc(96 + imgS / 2, imgY + imgS / 2, imgS / 2, 0, Math.PI * 2); g.clip(); cover(g, a, 96, imgY, imgS, imgS); g.restore();
+    g.lineWidth = 6; g.beginPath(); g.arc(96 + imgS / 2, imgY + imgS / 2, imgS / 2, 0, Math.PI * 2); g.stroke();
+    g.font = "150px sans-serif"; g.textBaseline = "middle"; g.fillText(ic, 96 + imgS + 60, imgY + imgS / 2);
+    // 도장
+    g.save(); g.translate(W - 190, imgY + 70); g.rotate(0.21); g.strokeStyle = "#D9482B"; g.lineWidth = 6; g.beginPath(); g.arc(0, 0, 70, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = "#D9482B"; g.font = J(34); g.textAlign = "center"; g.fillText("판정", 0, -18); g.fillText("완료", 0, 22); g.restore(); g.textAlign = "left";
+  }
+  // 판정 문구
+  let y = imgY + imgS + 54; g.textBaseline = "alphabetic"; g.fillStyle = "#6E6478"; g.font = D(38);
+  const who2 = who() === "당신" ? "당신" : who() + "님";
+  g.fillText(`${who2}의 동물상은`, 96, y); y += 92;
+  g.font = J(96); g.fillStyle = orange; const big = `${withMorph ? "" : ""}${nm}`; g.fillText(big, 96, y);
+  let bw = g.measureText(big).width; g.fillStyle = ink; g.fillText("상", 96 + bw, y); bw += g.measureText("상").width;
+  if (pct) { g.font = J(56); g.fillStyle = mint; g.fillText(` ${pct}%`, 96 + bw, y); }
+  if (withMorph) { g.font = "84px sans-serif"; g.fillText(ic, W - 96 - 100, y); }
+  y += 56; g.font = D(36); g.fillStyle = ink; y += wrapText(g, report.title || "", 96, y, W - 192, 48, 2);
+  // 해시태그
+  const tags = (report.keywords || []).slice(0, 4).map(k => String(k).startsWith("#") ? k : "#" + k);
+  if (tags.length) { y += 18; let x = 96; g.font = D(30);
+    for (const t of tags) { const tw = g.measureText(t).width + 36; if (x + tw > W - 96) break; g.fillStyle = paper2; rr(g, x, y, tw, 52, 26); g.fill(); g.lineWidth = 3; g.strokeStyle = ink; g.stroke(); g.fillStyle = ink; g.fillText(t, x + 18, y + 37); x += tw + 12; }
+    y += 52; }
+  // 순위 막대
+  y += 40; const sc = (report.scores || []).filter(s => ANIMALS[s.key]).slice(0, 3);
+  for (const [i, s] of sc.entries()) {
+    const label = `${ANIMALS[s.key][1]} ${ANIMALS[s.key][0]}`; g.font = D(32); g.fillStyle = ink; g.fillText(label, 96, y + 30);
+    const bx = 400, bwid = W - 96 - bx - 110, v = Math.max(4, Math.min(100, +s.score || 0)) / 100;
+    g.fillStyle = paper2; rr(g, bx, y + 6, bwid, 30, 15); g.fill(); g.lineWidth = 3; g.strokeStyle = ink; g.stroke();
+    g.fillStyle = i === 0 ? orange : "#B9A7F5"; rr(g, bx, y + 6, Math.max(30, bwid * v), 30, 15); g.fill(); g.stroke();
+    g.fillStyle = ink; g.font = J(34); g.textAlign = "right"; g.fillText(Math.round(+s.score || 0) + "%", W - 96, y + 32); g.textAlign = "left";
+    y += 58;
+  }
+  // 궁합
+  const mk = ANIMALS[report.match] && report.match !== report.top ? report.match : null;
+  if (mk && y < H - 210) { y += 14; g.font = D(32); g.fillStyle = mint; g.fillText(`💞 찰떡궁합: ${ANIMALS[mk][1]} ${ANIMALS[mk][0]}상`, 96, y + 30); y += 50; }
+  if (report.charm && y < H - 280) { y += 30; g.font = D(30); g.fillStyle = "#6E6478"; wrapText(g, "✨ " + report.charm, 96, y + 28, W - 192, 44, 2); }
+  // 바닥글
+  g.fillStyle = "#6E6478"; g.font = D(26); g.textAlign = "center"; g.fillText("나도 해보기 👉 malang-3d-studio.onrender.com/animal", W / 2, H - 92); g.textAlign = "left";
+  return new Promise(ok => c.toBlob(ok, "image/png"));
+}
+let cardBlob = null;
+async function openCard(withMorph){
+  const btn = withMorph ? $("#cardBtn2") : $("#cardBtn1"); const old = btn.textContent;
+  btn.disabled = true; btn.textContent = "카드 만드는 중…";
+  try {
+    cardBlob = await makeCard(withMorph);
+    let url = URL.createObjectURL(cardBlob), dl = url;
+    try { const r = await fetch("/api/keep", { method: "POST", headers: { "Content-Type": "image/png" }, body: cardBlob }); const d = await r.json(); if (r.ok && d.url) { url = d.url; dl = d.url + "?dl=1"; } } catch {}
+    $("#sheetImg").src = url; $("#sheetDownload").href = dl; $("#sheetDownload").download = `동물상-결과카드-${ANIMALS[report.top][0]}.png`;
+    $("#sheet").dataset.kind = "card"; $("#sheet").hidden = false;
+  } catch (e) { toast("카드를 못 만들었어요. 다시 눌러 주세요"); console.warn(e); }
+  finally { btn.disabled = false; btn.textContent = old; }
+}
+$("#cardBtn1").addEventListener("click", () => openCard(false));
+$("#cardBtn2").addEventListener("click", () => openCard(true));
+$("#sheetShare").addEventListener("click", async () => {
+  const isCard = $("#sheet").dataset.kind === "card"; const blob = isCard ? cardBlob : resultBlob; if (!blob) return;
+  const f = new File([blob], isCard ? "animal-card.png" : "animal.png", { type: "image/png" });
+  if (navigator.canShare && navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], title: `${who()}의 동물상: ${ANIMALS[report.top][0]}상` }); } catch {} }
+  else toast("이 브라우저는 바로 공유가 안 돼요. 저장해서 올려 주세요");
+});
+
+/* ---- 저장 / 공유 ---- */
+function openSheet(){ $("#sheetImg").src = $("#afterImg").src; $("#sheetDownload").href = resultUrl; $("#sheet").dataset.kind = "morph"; $("#sheet").hidden = false; }
+$("#sheetClose").addEventListener("click", () => $("#sheet").hidden = true);
+$("#sheet").addEventListener("click", ev => { if (ev.target === $("#sheet")) $("#sheet").hidden = true; });
+$("#shareBtn").addEventListener("click", async () => {
+  if (!resultBlob) return;
+  const f = new File([resultBlob], "animal.png", { type: "image/png" });
+  if (navigator.canShare && navigator.canShare({ files: [f] })) {
+    try { await navigator.share({ files: [f], title: `${who()}의 동물상: ${ANIMALS[morphKey][0]}상` }); return; } catch (e) { if (e.name === "AbortError") return; }
+  }
+  openSheet();
+});
+
+/* ---- 상태 / 인앱 브라우저 ---- */
+async function loadStatus(){
+  try { const s = await (await fetch("/api/status")).json();
+    if (!s.ready) { error("아직 준비 중이에요. 관리자가 API 키를 등록하면 바로 쓸 수 있어요."); $("#goAnalyze").disabled = true; }
+    if (s.left !== null) $("#left").textContent = "오늘 변신 가능 " + s.left + "회 남음";
+  } catch {}
+}
+loadStatus(); renderDex();
+(function(){
+  const ua = navigator.userAgent;
+  if (/KAKAOTALK/i.test(ua)) { $("#inapp").hidden = false; $("#inappOpen").href = "kakaotalk://web/openExternal?url=" + encodeURIComponent(location.href); }
+  else if (/Instagram|FBAN|FBAV|Line\//i.test(ua)) { $("#inapp").hidden = false; $("#inappOpen").href = location.href; $("#inappOpen").target = "_blank"; }
+})();
+</script>
+</body>
+</html>
