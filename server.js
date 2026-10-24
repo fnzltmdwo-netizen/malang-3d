@@ -107,7 +107,7 @@ const BUILTIN_MODES = {
   anim:   { size: "1024x1024", template: "{desc}", styles: { default: { name: "3D 캐릭터", desc: PROMPT } } },
   hair:   { size: "1024x1024", styles: Object.fromEntries(Object.entries(HAIR).map(([k, v]) => [k, { name: v.name, prompt: hairPrompt(k) }])) },
   anime:  { size: "1024x1024", styles: Object.fromEntries(Object.entries(ANIME).map(([k, v]) => [k, { name: v.name, prompt: animePrompt(k) }])) },
-  joseon: { size: "1024x1536", template: JOSEON_TEMPLATE, styles: JOSEON },
+  joseon: { size: "1024x1536", fidelity: "low", template: JOSEON_TEMPLATE, styles: JOSEON },
 };
 function latestFile(dir, re) {
   try {
@@ -133,7 +133,13 @@ function getModes() {
 function buildPrompt(modeKey, styleKey) {
   const m = getModes()[modeKey]; if (!m) return null;
   const st = (m.styles || {})[styleKey]; if (!st) return null;
-  return { prompt: st.prompt || (m.template || "{desc}").replace("{desc}", st.desc || ""), size: st.size || m.size || "1024x1024" };
+  return {
+    prompt: st.prompt || (m.template || "{desc}").replace("{desc}", st.desc || ""),
+    size: st.size || m.size || "1024x1024",
+    fidelity: st.fidelity || m.fidelity || "high",   // high = 사진 얼굴을 거의 그대로, low = 생김새만 참고해 새로 그림
+    quality: st.quality || m.quality || null,        // 없으면 관리자 페이지 설정
+    model: st.model || m.model || null,
+  };
 }
 
 // ---------- 유틸 ----------
@@ -158,13 +164,13 @@ const clientIp = (req) => (req.headers["x-forwarded-for"] || "").split(",")[0].t
 
 // ---------- OpenAI 변환 ----------
 const MODELS = ["gpt-image-1.5", "gpt-image-1"]; // 최신 모델 먼저, 없으면 자동으로 다음 모델
-async function convert(imageBuf, prompt = PROMPT, size = "1024x1024", model = MODELS[0]) {
+async function convert(imageBuf, prompt = PROMPT, size = "1024x1024", model = MODELS[0], opt = {}) {
   const form = new FormData();
   form.append("model", model);
   form.append("prompt", prompt);
   form.append("size", size);
-  form.append("quality", cfg.quality || "medium");
-  form.append("input_fidelity", "high"); // 얼굴·인물 특징 보존
+  form.append("quality", opt.quality || cfg.quality || "medium");
+  form.append("input_fidelity", opt.fidelity || "high"); // high = 얼굴 그대로 보존, low = 자연스럽게 새로 그림
   form.append("image", new Blob([imageBuf], { type: "image/png" }), "photo.png");
   const r = await fetch("https://api.openai.com/v1/images/edits", { method: "POST", headers: { Authorization: `Bearer ${cfg.apiKey}` }, body: form });
   const text = await r.text(); let data = {};
@@ -172,7 +178,7 @@ async function convert(imageBuf, prompt = PROMPT, size = "1024x1024", model = MO
   if (!r.ok) {
     const m = data.error?.message || text.slice(0, 200);
     const next = MODELS[MODELS.indexOf(model) + 1];
-    if (next && (r.status === 404 || /model|not found|does not exist|invalid_request/i.test(m) && /model/i.test(m))) { console.log(`${model} 사용 불가 → ${next}로 재시도`); return convert(imageBuf, prompt, size, next); }
+    if (next && (r.status === 404 || /model|not found|does not exist|invalid_request/i.test(m) && /model/i.test(m))) { console.log(`${model} 사용 불가 → ${next}로 재시도`); return convert(imageBuf, prompt, size, next, opt); }
     if (r.status === 401) { console.error("OpenAI 401:", m); throw new Error("OpenAI가 API 키를 거절했어요. 관리자에게 알려주세요. (" + m.slice(0, 90) + ")"); }
     if (r.status === 403 && /verif/i.test(m)) throw new Error("OpenAI 조직 인증이 필요해요. (관리자: platform.openai.com → Settings → Organization → Verify)");
     if (r.status === 429) throw new Error("지금 요청이 몰렸거나 크레딧이 부족해요. 잠시 후 다시 시도해 주세요.");
@@ -201,7 +207,7 @@ http.createServer(async (req, res) => {
       let buf; try { buf = await readBody(req, MAX_UPLOAD); } catch { return send(res, 413, { error: "사진이 너무 커요 (12MB 이하)" }); }
       const job = buildPrompt(url.searchParams.get("mode") || "anim", url.searchParams.get("style") || "default");
       if (!job) return send(res, 400, { error: "스타일을 다시 골라 주세요." });
-      const b64 = await convert(buf, job.prompt, job.size);
+      const b64 = await convert(buf, job.prompt, job.size, job.model || MODELS[0], { fidelity: job.fidelity, quality: job.quality });
       hits.push(now); ipHits.set(ip, hits);
       cfg.todayCount++; cfg.total++; save();
       const id = crypto.randomBytes(8).toString("hex");
