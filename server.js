@@ -189,6 +189,35 @@ async function convert(imageBuf, prompt = PROMPT, size = "1024x1024", model = MO
 }
 
 // 메인 페이지 = public/page-v숫자.html 중 가장 높은 번호 (없으면 index.html)
+// ---------- 사진 분석 (얼굴 보고 JSON으로 답하기) ----------
+const VISION_MODELS = ["gpt-4.1-mini", "gpt-4o-mini", "gpt-5-mini"];
+async function analyzeImage(imageBuf, system, userText, models = VISION_MODELS, idx = 0) {
+  const model = models[idx];
+  const body = {
+    model,
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: [
+        { type: "text", text: userText },
+        { type: "image_url", image_url: { url: "data:image/png;base64," + imageBuf.toString("base64"), detail: "low" } },
+      ] },
+    ],
+  };
+  const r = await fetch("https://api.openai.com/v1/chat/completions", { method: "POST", headers: { Authorization: `Bearer ${cfg.apiKey}`, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const text = await r.text(); let data = {};
+  try { data = JSON.parse(text); } catch {}
+  if (!r.ok) {
+    const m = data.error?.message || text.slice(0, 200);
+    if (models[idx + 1] && (r.status === 404 || /model/i.test(m))) { console.log(`${model} 분석 불가 → ${models[idx + 1]}`); return analyzeImage(imageBuf, system, userText, models, idx + 1); }
+    if (r.status === 401) throw new Error("OpenAI가 API 키를 거절했어요. 관리자에게 알려주세요. (" + m.slice(0, 90) + ")");
+    if (r.status === 429) throw new Error("지금 요청이 몰렸거나 크레딧이 부족해요. 잠시 후 다시 시도해 주세요.");
+    throw new Error("분석 오류: " + m);
+  }
+  try { return JSON.parse(data.choices[0].message.content); } catch { throw new Error("분석 결과를 읽지 못했어요. 다시 시도해 주세요."); }
+}
+const analyzeHits = new Map();
+
 function latestPage() { return latestFile(PUBLIC, /^page-v(\d+)\.html$/) || "index.html"; }
 
 // ---------- 서버 ----------
@@ -234,6 +263,21 @@ http.createServer(async (req, res) => {
       res.writeHead(200, { "Content-Type": "image/png", "Cache-Control": "private, max-age=7200", ...(url.searchParams.get("dl") ? { "Content-Disposition": 'attachment; filename="malang-' + im[1].slice(0, 6) + '.png"' } : {}) });
       return fs.createReadStream(fp).pipe(res);
     }
+    // 사용자: 사진 분석 (예: 동물상) — presets 의 mode.analyze 설정을 사용
+    if (req.method === "POST" && p === "/api/analyze") {
+      if (!cfg.apiKey) return send(res, 503, { error: "아직 관리자가 API 키를 등록하지 않았어요." });
+      const m = getModes()[url.searchParams.get("mode") || ""];
+      if (!m || !m.analyze) return send(res, 400, { error: "분석할 수 없는 기능이에요." });
+      const ip = clientIp(req), now = Date.now();
+      const ah = (analyzeHits.get(ip) || []).filter((t) => now - t < 3600e3);
+      if (ah.length >= (m.analyze.perIpLimit || 30)) return send(res, 429, { error: "분석을 너무 많이 했어요. 잠시 후 다시 시도해 주세요." });
+      let buf; try { buf = await readBody(req, MAX_UPLOAD); } catch { return send(res, 413, { error: "사진이 너무 커요 (12MB 이하)" }); }
+      const list = Object.entries(m.styles || {}).map(([k, v]) => `${k}=${v.name}`).join(", ");
+      const out = await analyzeImage(buf, (m.analyze.system || "").replace("{list}", list), (m.analyze.user || "Analyze this photo.").replace("{list}", list), m.analyze.models || VISION_MODELS);
+      ah.push(now); analyzeHits.set(ip, ah);
+      cfg.analyzeTotal = (cfg.analyzeTotal || 0) + 1; save();
+      return send(res, 200, out);
+    }
     if (p === "/api/status") { rollDay(); return send(res, 200, { modes: Object.fromEntries(Object.entries(getModes()).map(([mk, m]) => [mk, Object.fromEntries(Object.entries(m.styles || {}).map(([k, v]) => [k, v.name]))])), ready: !!cfg.apiKey, left: cfg.dailyLimit > 0 ? Math.max(0, cfg.dailyLimit - cfg.todayCount) : null }); }
 
     // 관리자 API
@@ -257,7 +301,9 @@ http.createServer(async (req, res) => {
     }
 
     // 정적 파일
-    const file = path.join(PUBLIC, p === "/" ? latestPage() : p === "/admin" ? "admin.html" : path.normalize(p));
+    const named = /^\/([a-z][a-z0-9]{1,20})\/?$/.exec(p);
+    const sub = named && named[1] !== "admin" ? latestFile(PUBLIC, new RegExp("^" + named[1] + "-v(\\d+)\\.html$")) : null;
+    const file = path.join(PUBLIC, p === "/" ? latestPage() : p === "/admin" ? "admin.html" : sub ? sub : path.normalize(p));
     if (!file.startsWith(PUBLIC) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) return send(res, 404, "not found", "text/plain");
     res.writeHead(200, { "Content-Type": MIME[path.extname(file)] || "application/octet-stream" });
     fs.createReadStream(file).pipe(res);
